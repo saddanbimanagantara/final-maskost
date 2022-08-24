@@ -1,0 +1,522 @@
+@import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Spartan";
+}
+
+h1 {
+	font-size: 50px;
+	line-height: 64px;
+	color: #222;
+}
+
+h2 {
+	font-size: 46px;
+	line-height: 54px;
+	color: #222;
+}
+
+h4 {
+	font-size: 20px;
+	color: #222;
+}
+
+h6 {
+	font-weight: 700;
+	font-size: 12px;
+}
+
+p {
+	font-size: 16px;
+	color: #465b52;
+}
+
+body {
+	width: 100%;
+}
+
+.section-p1 {
+	padding: 0 80px;
+}
+
+.header-top {
+	padding: 5px 80px;
+	background-color: #ecf0f1;
+}
+
+.header-top a {
+	text-decoration: none;
+	color: #1a1a1a;
+}
+
+.header-top a:hover {
+	text-decoration: none;
+	color: #2980b9;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 80px;
+	width: 100%;
+	padding: 0 80px;
+	background-color: #fcfcfc;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+	z-index: 999;
+	position: sticky;
+	top: 0;
+	left: 0;
+}
+
+.navBar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.navMenu {
+	list-style: none;
+	position: relative;
+}
+
+.navLink {
+	text-decoration: none;
+	font-size: 16px;
+	font-weight: 600;
+	padding: 0 20px;
+	color: #1a1a1a;
+	transition: ease 0.3s;
+}
+
+.btn-direction {
+	font-size: 16px;
+	font-weight: 600;
+	margin-left: 10px;
+}
+
+.navLink:hover,
+.navLink.active {
+	text-decoration: none;
+	color: #2980b9;
+	transition: ease-in-out 0.3s;
+}
+
+.navLink.active::after,
+.navLink:hover::after {
+	content: "";
+	width: 30%;
+	height: 2px;
+	background-color: #2980b9;
+	position: absolute;
+	bottom: -4px;
+	left: 20px;
+}
+
+/* hero section */
+.hero-kost {
+	background-image: url("../assets/heroes.png");
+	height: 90vh;
+	width: 100%;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: top -420px left 600px;
+	padding: 0 80px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+}
+
+.hero-kost h4 {
+	padding-bottom: 15px;
+}
+
+.hero-kost h1 {
+	color: #2980b9;
+}
+
+/* fetured section */
+.fetured {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.fe-box {
+	width: 180px;
+	height: 180px;
+	text-align: center;
+	padding: 25px 15px;
+	box-shadow: 20px 20px 34px rgba(0, 0, 0, 0.03);
+	border: 1px solid #cce7d0;
+	border-radius: 4px;
+	margin: 15px;
+}
+
+.fe-box img {
+	width: 100px;
+	height: 100px;
+}
+
+.fe-box h6 {
+	padding: 9px 8px 6px 8px;
+	line-height: 1;
+	border-radius: 4px;
+	color: #fcfcfc;
+	background-color: #2980b9;
+}
+
+.fe-box:nth-child(2) h6 {
+	background-color: #16a085;
+}
+.fe-box:nth-child(3) h6 {
+	background-color: #f39c12;
+}
+.fe-box:nth-child(4) h6 {
+	background-color: #8e44ad;
+}
+
+.kost-product {
+	text-align: center;
+}
+
+.pro-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	padding: 0 10px;
+}
+
+.pro {
+	width: 24%;
+	min-width: 240px;
+	min-height: 350px;
+	padding: 10px 12px;
+	border: 1px solid #cce7d0;
+	border-radius: 25px;
+	cursor: pointer;
+	box-shadow: 20px 20px 30px rgba(0, 0, 0, 0.02);
+	transition: ease-in-out 0.3s;
+	display: flex;
+	flex-direction: column;
+}
+
+.pro:hover {
+	box-shadow: 20px 20px 30px rgba(0, 0, 0, 0.06);
+}
+
+.pro img {
+	width: 100%;
+	height: 200px;
+	border-radius: 20px;
+	background-size: cover;
+}
+
+.pro .des {
+	text-align: start;
+}
+
+.pro .des span {
+	color: #1a1a1a;
+	font-size: 14px;
+}
+
+.pro .des .title {
+	color: #1a1a1a;
+	font-size: 16px;
+	min-height: 35px;
+	margin-top: 5px;
+}
+
+.pro .des .star i {
+	color: #f39c12;
+	font-size: 12px;
+}
+
+.pro .des .price {
+	color: #27ae60;
+	padding: 5px 0;
+	font-weight: 600;
+}
+
+.pro .des .star small {
+	font-size: 10px;
+}
+
+.kategori {
+	margin: 5px 0;
+}
+
+.owner i {
+	font-size: 12px;
+}
+.owner em small {
+	font-size: 12px;
+}
+
+/* footer section */
+
+.footer {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	width: 100%;
+	margin-top: 40px;
+	background-color: #ecf0f1;
+	padding-bottom: 20px;
+	padding-top: 20px;
+	gap: 10px;
+}
+
+.footer .fo-about {
+	display: flex;
+	flex-direction: column;
+}
+
+.footer .fo-about img {
+	width: 50%;
+	background-size: cover;
+	margin-bottom: 10px;
+}
+
+.footer .fo-about a {
+	width: 40%;
+	margin-top: 10px;
+}
+
+.footer .fo-page {
+	display: flex;
+	flex-direction: column;
+}
+
+.footer .fo-page p {
+	font-weight: 600;
+}
+
+.footer .fo-page ul {
+	list-style: none;
+}
+
+.footer .fo-page a {
+	text-decoration: none;
+	color: #1a1a1a;
+	margin: 3px 0;
+}
+
+.footer .fo-page a:hover {
+	text-decoration: none;
+	color: #2980b9;
+}
+
+.fo-kebijakan {
+	display: flex;
+	flex-direction: column;
+}
+
+.fo-kebijakan a {
+	text-decoration: none;
+	color: #1a1a1a;
+	margin: 3px 0;
+}
+
+.fo-kebijakan a:hover {
+	color: #2980b9;
+}
+
+.footer .fo-kontak {
+	display: flex;
+	flex-direction: column;
+	margin: 3px 0;
+}
+
+.mobile {
+	display: none;
+}
+
+.close-mobile {
+	display: none;
+}
+
+/* start media query */
+@media (max-width: 912px) {
+	.header-top {
+		padding: 5px 25px;
+	}
+	.header {
+		padding: 0 25px;
+	}
+
+	.mobile {
+		display: block;
+		cursor: pointer;
+	}
+
+	.close-mobile {
+		display: block;
+		cursor: pointer;
+		position: absolute;
+		top: 35px;
+		left: 20px;
+	}
+
+	.close-mobile i {
+		font-size: 25px;
+		color: #e74c3c;
+	}
+
+	.navBar {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		position: fixed;
+		top: 0;
+		right: -300px;
+		height: 100vh;
+		width: 300px;
+		background-color: #e3e6f3;
+		box-shadow: 0 40px 60px rgba(0, 0, 0, 0.1);
+		padding: 80px 0 10px;
+		transition: ease-in-out 0.6s;
+	}
+
+	.activeMenu {
+		right: 0;
+	}
+
+	.navMenu {
+		margin-bottom: 25px;
+	}
+
+	.hero-kost {
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: top 100px left 120px;
+		padding: 0 20px;
+	}
+
+	.kost-product {
+		padding: 0 20px;
+	}
+}
+
+/* section kost */
+.form-filter {
+	padding: 0 80px;
+	margin: 10px 0;
+}
+
+.pagination {
+	padding: 0 80px;
+	margin: 10px 0;
+}
+
+/* product detail section */
+.mainImage {
+	width: 100%;
+	object-fit: cover;
+	margin-bottom: 5px;
+}
+
+.small-img-group {
+	display: flex;
+	justify-content: flex-start;
+}
+
+.small-img-col {
+	flex-basis: 24%;
+	cursor: pointer;
+}
+
+.small-img {
+	width: 100%;
+	min-height: 130px;
+	object-fit: cover;
+}
+
+.pro-detail h6 {
+	color: #465b52;
+	font-size: 10px;
+	opacity: 80%;
+	margin-top: 10px;
+}
+
+.pro-detail .kategori {
+	background-color: #34495e;
+}
+
+.ajukan-sewa {
+	padding: 10px;
+	background-color: #ecf0f1;
+	box-shadow: 20px 20px 34px rgba(0, 0, 0, 0.03);
+	border: 1px solid #cce7d0;
+	border-radius: 4px;
+}
+
+.btn-sewa {
+	width: 100%;
+	height: 45px;
+}
+
+.prodescription {
+	margin-top: 20px;
+	text-align: justify;
+}
+
+.description-facility {
+	margin: 20px 0;
+}
+
+.facility {
+	display: flex;
+	width: 50%;
+	justify-content: space-between;
+	margin: 10px 0;
+}
+
+.icon-name {
+	width: 85%;
+}
+
+#map {
+	height: 280px;
+}
+
+.box-testimonial {
+	padding: 10px;
+	border: 1px solid #e5e7e9;
+	border-radius: 16px;
+	margin: 10px 0;
+}
+
+.profil-penghuni {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+}
+
+.bintang-testimonial {
+	display: flex;
+	flex-direction: column;
+}
+
+.pesan-testimonial p {
+	margin-top: 10px;
+	font-size: 14px;
+}
+
+.testi-name {
+	font-weight: 500;
+}
+
+.testi-foto-penghuni {
+	width: 45px;
+	height: 45px;
+	object-fit: cover;
+}
