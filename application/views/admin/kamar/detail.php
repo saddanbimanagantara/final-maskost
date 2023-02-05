@@ -3,18 +3,21 @@
     <?= $this->session->userdata('status'); ?>
     <section class="detail-kamar">
         <div class="row">
+            <?= $kamar[0]['member_email'] ?>
             <div class="col-sm-12 col-md-12 col-lg-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <h4 class="card-title">
                             <a href="<?= base_url('admin/kamar/master') ?>"><i class="fa-solid fa-circle-arrow-left"></i> </a> Detail Kost - <?= $kamar[0]['nama'] ?> <?= $this->uri->segment(3) ?>
                         </h4>
-                        <div class="hapus-kamar">
-                            <button class="btn btn-sm btn-sm btn-danger" onClick="hapus(this)" uid_kamar="<?= $kamar[0]['uid_kamar'] ?>" uid_kamar="<?= $kamar[0]['uid_gambar'] ?>" uid_gambar="<?= $kamar[0]['uid_gambar'] ?>"><i class="fa-solid fa-trash-alt"></i></button>
+                        <div>
+
+                            <button class="btn btn-danger" id="approve" onclick="updatestatus(this)" data-id="<?= $kamar[0]['uid_kamar'] ?>" data-status="DITOLAK">Tolak kamar</button>
+                            <button class="btn btn-primary" id="approve" onclick="updatestatus(this)" data-id="<?= $kamar[0]['uid_kamar'] ?>" data-status="APPROVE">Approve kamar</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form action="<?= base_url('admin/kamar/master/update') ?>" method="POST" enctype="multipart/form-data">
+                        <form id="detail">
                             <div class="form-group">
                                 <label for="nama">Nama kamar</label>
                                 <input type="hidden" name="uid_kamar" class="uid_kamar" id="uid_kamar" value="<?= $kamar[0]['uid_kamar'] ?>">
@@ -182,7 +185,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="btn btn-primary simpan" id="simpan">Simpan</button>
                         </form>
                     </div>
                 </div>
@@ -193,6 +195,8 @@
 <?php $this->load->view('dist/_partials/footer'); ?>
 <script>
     var prov_id;
+    $("#detail :input").prop("disabled", true);
+    $('#deskripsi').summernote('disable');
     $(document).ready(function() {
         <?php if (isset($_SESSION['response']) && $_SESSION['response'] !== '') : ?>
             swal({
@@ -343,6 +347,29 @@
         gambar();
         response();
     })
+
+    function updatestatus(data) {
+        var uid_kamar = $(data).data('id');
+        var status = $(data).data('status');
+        $.ajax({
+            url: '<?= base_url('admin/kamar/master/updatestatus/') ?>' + uid_kamar,
+            type: 'POST',
+            data: {
+                status: status,
+                email: '<?= $kamar[0]['member_email'] ?>'
+            },
+            dataType: 'JSON',
+            success: function(response) {
+                console.log(response);
+                swal({
+                    icon: 'success',
+                    text: 'kamar ' + status
+                }).then((ok) => {
+                    window.location.href = '<?= base_url('admin/kamar/master') ?>';
+                })
+            }
+        })
+    }
 
     function response() {
         <?php

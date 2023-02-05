@@ -1,6 +1,6 @@
 <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-Ejyk6W8iGNPzCd2V"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script src="<?php echo base_url(); ?>assets/modules/sweetalert/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <?php $this->load->view('dist/_partials/header') ?>
 <div class="main-content">
     <div class="row">
@@ -13,7 +13,7 @@
                         <h6>Data pembayaran</h6>
                     </div>
                     <div class="card-body">
-                        <table class="table table-hover table-responsive-lg">
+                        <table class="table table-hover table-responsive-lg" id="tb-pembayaran">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -34,15 +34,25 @@
                                         <td><?= rupiah($tx['jumlah_pembayaran']); ?></td>
                                         <td><?= $tx['waktu_transaksi'] ?></td>
                                         <td><?= $tx['tenggat_pembayaran'] ?></td>
-                                        <td><?= ($tx['status_code'] == 200) ? "<span class='text-success font-weight-bold'>SETTLEMENT</span>" : "<span class='text-warning font-weight-bold'>PENDING</span>" ?></td>
+                                        <td><?php
+                                            if ($tx['status_code'] == 200) {
+                                                echo "<span class='text-success font-weight-bold'>APPROVE</span>";
+                                            } else if ($tx['status_code'] == 201) {
+                                                echo "<span class='text-warning font-weight-bold'>PENDING</span>";
+                                            } else if ($tx['status_code'] == 202) {
+                                                echo "<span class='text-warning font-weight-bold'>CANCEL</span>";
+                                            }
+                                            ?>
+                                        </td>
                                         <td>
                                             <?php
                                             if ($tx['status_code'] == 200) {
                                                 echo '<a href="' . base_url('penghuni/pembayaran/detail/') . $tx['uid_transaksi'] . '" class="btn btn-sm btn-primary mr-2">Detail</a>';
-                                                echo '<a href="#" class="btn btn-sm btn-danger disabled" >Batal</a></td>';
-                                            } else {
+                                            } else if ($tx['status_code'] == 201) {
                                                 echo '<button class="btn btn-sm btn-primary mr-2" data-token="' . $tx['snapToken'] . '" data-tx="' . $tx['uid_transaksi'] . '" id="pay-button" >Bayar</button>';
-                                                echo '<a href="#" class="btn btn-sm btn-danger">Batal</a></td>';
+                                                echo '<a href="#" class="btn btn-sm btn-danger" data-token="' . $tx['snapToken'] . '" data-tx="' . $tx['uid_transaksi'] . '" id="cancel-button" >Batal</a></td>';
+                                            } else if ($tx['status_code'] == 202) {
+                                                echo '<a href="' . base_url('penghuni/pembayaran/detail/') . $tx['uid_transaksi'] . '" class="btn btn-sm btn-danger mr-2">DETAIL</a>';
                                             }
                                             ?>
                                         </td>
@@ -53,13 +63,17 @@
                     </div>
             </div>
         <?php
+                } else {
+                    echo '<div class="card-header"><h6>Belum ada data transaksi!</h6></div>';
                 }
-                echo '<div class="card-header"><h6>Belum ada data transaksi!</h6></div>';
         ?>
         </div>
     </div>
 </div>
 <script>
+    $(document).ready(function() {
+        $('#tb-pembayaran').DataTable();
+    })
     var payButton = document.getElementById('pay-button');
     payButton.addEventListener('click', function() {
         var token = $('#pay-button').data('token');
@@ -94,9 +108,42 @@
             },
             onClose: function() {
                 /* You may add your own implementation here */
-                alert('you closed the popup without finishing the payment');
+                $.ajax({
+                    url: "<?= base_url('snap/pembayaran') ?>",
+                    type: "POST",
+                    data: {
+                        uid_transaksi: uid_transaksi,
+                        params: 200
+                    },
+                    success: function(data) {
+                        swal("Berhasil!", "Selamat pembayaran berhasil!", "success");
+                        location.reload();
+                    }
+                })
             }
         })
     });
+    $('#cancel-button').click(function() {
+        $.ajax({
+            url: "<?= base_url('transaction/process') ?>",
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                order_id: $(this).data('tx'),
+                action: 'cancel'
+            },
+            success: function(data) {
+                swal({
+                    title: "Success!",
+                    text: "Pembatalan pembayaran berhasil.",
+                    type: "success",
+                    showConfirmButton: true
+                }).then(() => {
+                    location.reload();
+                });
+            }
+        })
+        console.log($(this).data('tx'));
+    })
 </script>
 <?php $this->load->view('dist/_partials/footer') ?>

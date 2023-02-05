@@ -25,10 +25,6 @@ class Chat extends CI_Controller
 
     public function index()
     {
-    }
-
-    public function penghuni()
-    {
         $data = array(
             'title'     => "Daftar Chat",
             'user'      => $this->user_log
@@ -36,28 +32,42 @@ class Chat extends CI_Controller
         $this->load->view('chat', $data);
     }
 
+    public function test()
+    {
+        $data = $this->chat->getChat($this->user_log['member_id']);
+        echo json_encode($data);
+    }
+
     public function getPengirim()
     {
-        $data = $this->chat->getPenghuni($this->user_log['member_id']);
+        $data = $this->chat->getChat($this->user_log['member_id']);
         $chat = "";
         foreach ($data as $data) {
-            $chatarea = base_url($this->user_log['otoritas'] . '/chat/area/' . $data['uid_member']);
-            $image = base_url('assets/img/profile/') . $data['otoritas'] . '/' . $data['image'];
-            $chat .= '<li class="media mt-1" id="media" data-chatid="' . $chatarea . '">
-                        <figure class="avatar mr-3 avatar-lg">
-                            <img src="' . $image . '" alt="">
-                        </figure>
-                        <div class="media-body">
-                            <div class="mt-0 mb-1 font-weight-bold">' . $data['fnama'] . ' ' . $data['lnama'] . ' - ' . $data['nama'] . '</div>
-                            <div class="text-small font-600-bold"><i class="fa-solid fa-message"></i>
-                                ' . $data['message'] . '
+            if ($data['uid_pengirim'] === $this->uid_member) {
+            } else {
+                $chatarea = base_url($this->user_log['otoritas'] . '/chat/area/' . $data['uid_member']);
+                $image = base_url('assets/img/profile/') . $data['otoritas'] . '/' . $data['image'];
+                if ($data['nama'] === null) {
+                    $nama_kamar = 'Calon penghuni';
+                } else {
+                    $nama_kamar = 'Penghuni ' . $data['nama'];
+                }
+                $chat .= '<li class="media mt-1" id="media" data-chatid="' . $chatarea . '">
+                            <figure class="avatar mr-3 avatar-lg">
+                                <img src="' . $image . '" alt="">
+                            </figure>
+                            <div class="media-body">
+                                <div class="mt-0 mb-1 font-weight-bold">' . $data['fnama'] . ' ' . $data['lnama'] . ' - ' . $nama_kamar . '</div>
+                                <div class="text-small font-600-bold"><i class="fa-solid fa-message"></i>
+                                    ' . $data['message'] . '
+                                </div>
+                                <div class="text-small font-600-bold"><i class="fa-solid fa-clock"></i>
+                                    ' . $data['time'] . '
+                                </div>
+                                <a href="' . $chatarea . '" class="btn btn-sm btn-primary">Kirim pesan</a>
                             </div>
-                            <div class="text-small font-600-bold"><i class="fa-solid fa-clock"></i>
-                                ' . $data['time'] . '
-                            </div>
-                            <a href="' . $chatarea . '" class="btn btn-sm btn-primary">Kirim pesan</a>
-                        </div>
-                    </li>';
+                        </li>';
+            }
         }
         echo $chat;
     }

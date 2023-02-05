@@ -35,31 +35,78 @@
         <div class="pro-container">
             <?php
             foreach ($kamar as $kamar) : ?>
-                <div class="pro">
-                    <img src="<?= base_url('public/images/kamar/') . $kamar['gambar_satu'] ?>" alt="">
+                <div class="pro" kost-id="<?= $kamar['uid_kamar'] ?>" onclick="detail(this)">
+                    <img src="<?= base_url('public/images/kamar/') . $kamar['gambar_satu'] ?>">
                     <div class="des">
-                        <span><?= $kamar['nama_kategori'] ?></span>
-                        <h5 class="title"><?= $kamar['nama'] ?></h5>
+                        <div class="btn btn-sm btn-outline-secondary mt-1 font-weight-bold"><?= $kamar['nama_kategori'] ?> </div>
+                        <h6 class="mt-1 mb-1 font-weight-bold"><?= $kamar['nama'] ?></h6>
+                        <small class="font-weight-bold"><?= $kamar['kota'] ?></small>
                         <?php
                         $totalbintang = $kamar['limabintang'] + $kamar['empatbintang'] + $kamar['tigabintang'] + $kamar['duabintang'] + $kamar['satubintang'];
                         $rate =  ratingcount($totalbintang, $kamar['testicount']);
+                        echo $kamar['testicount'];
+                        ?>
+                        <?php
+                        $fasilitas = explode(',', $kamar['uid_fasilitas']);
+                        $f = 0;
+                        $string = '';
+                        while ($f < count($fasilitas)) {
+                            foreach ($fasilitaskamar as $fk) {
+                                if ($fasilitas[$f] === $fk['uid_fasilitas']) {
+                                    $string .=  $fk['nama'] . '<span data-v-fdf112ec="" class="rc-facilities_divider">·</span>';
+                                }
+                            }
+                            $f++;
+                        }
+                        // limit deskripsi fasilitas
+                        $string = strip_tags($string);
+                        if (strlen($string) > 80) {
+                            $stringCut = substr($string, 0, 80);
+                            $endPoint = strrpos($stringCut, ' ');
+                            $string = $endPoint ? substr($stringCut, 0, $endPoint) : substr($stringCut, 0);
+                            $string .= '...';
+                        }
+
+                        echo '<small>' . $string . '</small>';
                         ?>
                         <div class="star">
                             <?php
+                            // show review bintang
                             $i = 0;
                             while ($i < $rate) {
                                 echo '<i class="fas fa-star"></i>';
                                 $i++;
                             }
-                            echo "<small> (" . $kamar['testicount'] . ")</small>";
+                            echo "<small> (" . $kamar['testicount'] . " total reviews) </small>";
                             ?>
                         </div>
-                        <h5 class="price"><?= rupiah($kamar['harga']) ?></h5>
-                    </div>
-                    <div class="d-flex align-items-end justify-content-center">
-                        <a href="<?= base_url('kost/kamar/') . $kamar['url_title'] ?>" class="btn btn-sm btn-primary text-white m-1">Detail</a>
+                        <?php
+                        $diskon = ($kamar['diskon'] / 100) * $kamar['harga'];
+                        if ($diskon != 0) {
+                            echo '<small class="font-weight-normal">' . $kamar['diskon'] . '% <del>' . rupiah($kamar['harga']) . '</del></small>';
+                        }
+                        ?>
+                        <br>
+
+                        <h4 class="font-weight-bold mt-1"><?= rupiah($kamar['harga'] - $diskon) ?></h4>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
     </section>
+    <script>
+        function detail(data) {
+            var uid_kamar = $(data).attr('kost-id');
+            $.ajax({
+                'url': '<?= base_url('kost/getKamar/') ?>',
+                'type': 'POST',
+                'dataType': 'JSON',
+                'data': {
+                    uid_kamar: uid_kamar
+                },
+                'success': function(data) {
+                    window.location = "<?= base_url('kost/kamar/') ?>" + data.kamar['url_title'];
+                }
+            })
+        }
+    </script>

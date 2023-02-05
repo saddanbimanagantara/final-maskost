@@ -4,8 +4,17 @@
             <?= $title ?>
         </div>
         <div class="card-body">
-            <h5 class="card-title p-2"><?php echo ($status == 200) ? '<i class="fa-solid fa-thumbs-up" style="color:blue; font-size:60px;"></i>' : '<i class="fa-solid fa-spinner"  style="color:orange; font-size:60px;"></i>' ?></h5>
-            <small class="card-text"><?= $status_message ?></small>
+
+            <?php
+            if ($status == 200) {
+                echo '<h5 class="card-title p-2"><i class="fa-solid fa-thumbs-up" style="color:blue; font-size:60px;"></i></h5>';
+                echo '<small class="card-text">Pembayaran berhasil silahkan cek di dashboard pembayaran dibawah</small>';
+            } else {
+                echo '<h5 class="card-title p-2"><i class="fa-solid fa-spinner"  style="color:orange; font-size:60px;"></i></h5>';
+                echo '<small class="card-text">Pembayaran belum dibayar silahkan cek di dashboard pembayaran dibawah</small>';
+            }
+            ?>
+            <br>
             <a href="<?= base_url('penghuni/pembayaran') ?>" class="btn btn-primary mt-3">Cek Pembayaran</a>
         </div>
     </div>

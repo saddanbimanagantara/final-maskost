@@ -1,7 +1,21 @@
 <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-Ejyk6W8iGNPzCd2V"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script src="<?php echo base_url(); ?>assets/modules/sweetalert/sweetalert.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <div class="container mt-4">
+    <?php
+    if ($this->session->flashdata('message')) {
+    ?>
+        <script src="http://localhost/sk-kost/assets/modules/sweetalert/sweetalert.min.js"></script>
+        <script>
+            swal({
+                title: "<?= $this->session->flashdata('icon') ?>",
+                text: "<?= $this->session->flashdata('message') ?>",
+                icon: "<?= $this->session->flashdata('icon') ?>"
+            })
+        </script>
+    <?php
+    }
+    ?>
     <div class="card">
         <div class="card-header bg-primary text-center text-white">
             <h5 class="pt-2"><?= $title ?></h5>
@@ -28,7 +42,7 @@
                 </div>
 
                 <div class="col-md-6 col-sm-12">
-                    <form id="payment-form" method="post" action="<?= site_url() ?>snap/finish">
+                    <form id="payment-form" method="post">
                         <p class="font-weight-bold">Identitas anda</p>
                         <div class="form-group">
                             <label for="fnama">Nama depan</label>
@@ -45,18 +59,17 @@
                         <p class="font-weight-bold">Detail pengajuan sewa</p>
                         <div class="form-group">
                             <label for="tanggal_masuk">Tanggal masuk</label>
-                            <input type="date" class="form-control" id="tanggal_masuk" name="tanggal_masuk" onchange="check()" value="<?= $sewa['tanggal_masuk'] ?>">
+                            <input type="date" class="form-control" id="tanggal_masuk" name="tanggal_masuk" onchange="check()" value="<?= $_GET['tanggal_masuk'] ?>">
                         </div>
                         <div class="form-group">
                             <label for="durasi">Durasi</label>
                             <select name="durasi" id="durasi" class="form-control" onChange="check()">
-                                <option value="<?= $sewa['durasi'] ?>" selected><?= $sewa['durasi'] ?> Bulan</option>
                                 <?php
                                 $durasi = explode(',', $kamar['uid_durasi']);
                                 $d = 0;
                                 while ($d < count($durasi)) {
                                 ?>
-                                    <option value="<?= $durasi[$d] ?>"><?= $durasi[$d] ?> Bulan</option>
+                                    <option value="<?= $durasi[$d] ?>" <?= ($_GET['durasi'] == $durasi[$d]) ? 'selected' : '' ?>><?= $durasi[$d] ?> Bulan</option>
                                 <?php
                                     $d++;
                                 }
@@ -65,7 +78,7 @@
                         </div>
                         <div class="form-group">
                             <label for="durasi">Total pembayaran</label>
-                            <input type="text" class="form-control" id="jumlah_pembayaran" name="jumlah_pembayaran" onChange="check()">
+                            <input type="text" class="form-control" id="jumlah_pembayaran" name="jumlah_pembayaran" onChange="check()" disabled>
                             <small>*Sudah termasuk perhitungan diskon + pajak</small>
                         </div>
                         <input type="hidden" name="uid_member" id="uid_member" value="<?= $member['uid_member'] ?>">
@@ -89,74 +102,153 @@
     $('#pay-button').click(function(event) {
         event.preventDefault();
         $(this).attr("disabled", "disabled");
+        var jenis_kelamin = '<?= ($member['jenis_kelamin'] == 'L') ? 'Laki' : 'Perempuan' ?>';
+        if (jenis_kelamin != '<?= $kamar['nama_kategori'] ?>') {
+            swal({
+                title: 'Kamar kost kategori ' + '<?= $kamar['nama_kategori'] ?>',
+                text: 'Jenis kelamin anda tidak sesuai dengan kategori kamar, silahkan cari kamar lain!',
+                icon: 'warning'
+            })
+            console.log('not sesuai');
+        } else {
+            swal({
+                title: 'yakin?',
+                text: 'Apakah anda sudah yakin mau menyewa kamar ini?',
+                icon: "warning",
+                buttons: {
+                    cancel: true,
+                    cancel: 'Tidak',
+                    confirm: "Ya, Saya Yakin"
+                },
+                dangerMode: true,
+            }).then(function(isOk) {
+                if (isOk) {
+                    $.ajax({
+                        url: '<?= site_url() ?>snap/token',
+                        type: 'POST',
+                        data: {
+                            jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                            uid_durasi: $('#durasi').val(),
+                            tanggal_masuk: $('#tanggal_masuk').val(),
+                            tanggal_keluar: '',
+                            jenis: "baru",
+                            uid_member: '<?= $member['uid_member'] ?>',
+                            uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                            nama_kost: '<?= $kamar['nama'] ?>',
+                            fnama: '<?= $member['fnama'] ?>',
+                            lnama: '<?= $member['lnama'] ?>',
+                            email: '<?= $member['email'] ?>',
+                            alamat: $('#alamat').val(),
+                            no_hp: '<?= $member['no_hp'] ?>'
+                        },
+                        cache: false,
 
-        $.ajax({
-            url: '<?= site_url() ?>snap/token',
-            type: 'POST',
-            data: {
-                jumlah_pembayaran: $('#jumlah_pembayaran').val(),
-                uid_durasi: $('#durasi').val(),
-                tanggal_masuk: $('#tanggal_masuk').val(),
-                tanggal_keluar: '',
-                jenis: "baru",
-                uid_member: '<?= $member['uid_member'] ?>',
-                uid_kamar: '<?= $kamar['uid_kamar'] ?>',
-                nama_kost: '<?= $kamar['nama'] ?>',
-                fnama: '<?= $member['fnama'] ?>',
-                lnama: '<?= $member['lnama'] ?>',
-                email: '<?= $member['email'] ?>',
-                alamat: $('#alamat').val(),
-                no_hp: '<?= $member['no_hp'] ?>'
-            },
-            cache: false,
+                        success: function(data) {
+                            //location = data;
+                            var token = data;
+                            var resultType = document.getElementById('result-type');
+                            var resultData = document.getElementById('result-data');
 
-            success: function(data) {
-                //location = data;
-
-                console.log('token = ' + data);
-                var token = data;
-                var resultType = document.getElementById('result-type');
-                var resultData = document.getElementById('result-data');
-
-                function changeResult(type, data) {
-                    $("#result-type").val(type);
-                    $("#result-data").val(JSON.stringify(data));
-                    $("#token").val(token);
-                    //resultType.innerHTML = type;
-                    //resultData.innerHTML = JSON.stringify(data);
+                            function changeResult(type, data) {
+                                $("#result-type").val(type);
+                                $("#result-data").val(JSON.stringify(data));
+                                $("#token").val(token);
+                            }
+                            snap.pay(data, {
+                                onSuccess: function(result) {
+                                    changeResult('success', result);
+                                    $("#token").val(data);
+                                    $.ajax({
+                                        url: '<?= site_url() ?>snap/saveData',
+                                        type: 'POST',
+                                        dataType: 'JSON',
+                                        data: {
+                                            jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                                            uid_durasi: $('#durasi').val(),
+                                            tanggal_masuk: $('#tanggal_masuk').val(),
+                                            tanggal_keluar: '',
+                                            jenis: "baru",
+                                            uid_member: '<?= $member['uid_member'] ?>',
+                                            uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                                            result_data: $('#result-data').val(),
+                                            token: $('#token').val()
+                                        },
+                                        cache: false,
+                                        success: function(data) {
+                                            url = "<?= base_url() ?>" + 'snap/finish?order_id=' + data.order_id + '&status=' + data.status;
+                                            window.location.href = url;
+                                        }
+                                    });
+                                },
+                                onPending: function(result) {
+                                    changeResult('pending', result);
+                                    $("#token").val(data);
+                                    $.ajax({
+                                        url: '<?= site_url() ?>snap/saveData',
+                                        type: 'POST',
+                                        dataType: 'JSON',
+                                        data: {
+                                            jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                                            uid_durasi: $('#durasi').val(),
+                                            tanggal_masuk: $('#tanggal_masuk').val(),
+                                            tanggal_keluar: '',
+                                            jenis: "baru",
+                                            uid_member: '<?= $member['uid_member'] ?>',
+                                            uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                                            result_data: $('#result-data').val(),
+                                            token: $('#token').val()
+                                        },
+                                        cache: false,
+                                        success: function(data) {
+                                            url = "<?= base_url() ?>" + 'snap/finish?order_id=' + data.order_id + '&status=' + data.status;
+                                            window.location.href = url;
+                                        }
+                                    });
+                                },
+                                onError: function(result) {
+                                    $("#token").val(data);
+                                    changeResult('error', result);
+                                    $.ajax({
+                                        url: '<?= site_url() ?>snap/saveData',
+                                        type: 'POST',
+                                        dataType: 'JSON',
+                                        data: {
+                                            jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                                            uid_durasi: $('#durasi').val(),
+                                            tanggal_masuk: $('#tanggal_masuk').val(),
+                                            tanggal_keluar: '',
+                                            jenis: "baru",
+                                            uid_member: '<?= $member['uid_member'] ?>',
+                                            uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                                            result_data: $('#result-data').val(),
+                                            token: $('#token').val()
+                                        },
+                                        cache: false,
+                                        success: function(data) {
+                                            url = "<?= base_url() ?>" + 'snap/finish?order_id=' + data.order_id + '&status=' + data.status;
+                                            window.location.href = url;
+                                        }
+                                    });
+                                },
+                                onClose: function(result) {
+                                    location.reload();
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    $(this).removeAttr('disabled');
                 }
+            })
+        }
 
-                snap.pay(data, {
-
-                    onSuccess: function(result) {
-                        changeResult('success', result);
-                        console.log(result.status_message);
-                        console.log(result);
-                        $("#token").val(data);
-                        $("#payment-form").submit();
-                    },
-                    onPending: function(result) {
-                        changeResult('pending', result);
-                        console.log(result.status_message);
-                        $("#token").val(data);
-                        $("#payment-form").submit();
-                    },
-                    onError: function(result) {
-                        $("#token").val(data);
-                        changeResult('error', result);
-                        console.log(result.status_message);
-                        $("#payment-form").submit();
-                    }
-                });
-            }
-        });
     });
 
     function kalkulasi() {
         var durasi = document.getElementById('durasi').value;
         var harga = "<?= $kamar['harga'] ?>";
         var diskon = "<?= $kamar['harga'] * ($kamar['diskon'] / 100) ?>";
-        var total = ("<?= $kamar['harga'] ?>" * durasi - diskon);
+        var total = ("<?= $kamar['harga'] ?>" * durasi - (diskon * durasi));
         document.getElementById('jumlah_pembayaran').value = "Rp " + rupiah(total);
     }
 
@@ -173,11 +265,11 @@
         var jumlah_pembayaran = document.getElementById('jumlah_pembayaran').value;
         if (durasi == 0) {
             tanggalMaksimal();
+            $('#pay-button').prop('disabled', true);
             swal("Maaf!", "Silahkan pilih durasi pengajuan kost!", "warning");
-            $('#pay-button').attr('disabled', true);
         } else {
-            tanggalMaksimal();
             $('#pay-button').removeAttr('disabled');
+            tanggalMaksimal();
         }
     }
 
@@ -187,7 +279,7 @@
         var tanggal_maksimal_booking = addDays(dateNow, 7);
         if (tanggal_masuk > tanggal_maksimal_booking) {
             swal("Maaf!", "Pemesanan kamar tidak boleh lebih dari 7 hari dari tanggal sekarang!", "warning");
-            $('#pay-button').attr('disabled', true);
+            $('#pay-button').prop('disabled', true);
         } else {
             $('#pay-button').removeAttr('disabled');
         }

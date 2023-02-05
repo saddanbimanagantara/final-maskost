@@ -48,18 +48,14 @@ class Member extends CI_Controller
             $date_created = date('Y-m-d H:i:s');
             $date_updated = date('Y-m-d H:i:s');
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $saldo = 0;
-            $saldo_released = 0;
         } else if ($action === 'edit') {
             $uid_member = $_POST['uid_member'];
             $date_created = $_POST['date_created'];
             $date_updated = date('Y-m-d H:i:s');
             $password = ($_POST['password'] === '') ? $_POST['passwordHidden'] : password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $saldo = $_POST['saldo'];
-            $saldo_released = $_POST['saldo_released'];
         }
 
-        $pathImage = 'assets/img/profile/juragan/';
+        $pathImage = 'assets/img/profile/' . $this->uri->segment(5) . '/';
         $data = array(
             'uid_member'        => $uid_member,
             'email'             => $_POST['email'],
@@ -70,13 +66,9 @@ class Member extends CI_Controller
             'alamat'            => $_POST['alamat'],
             'jenis_kelamin'     => $_POST['jenis_kelamin'],
             'no_hp'             => $_POST['no_hp'],
-            'image'             => uploadVerification('image', $_POST['imageHidden'], $_POST['username'], $pathImage),
+            'image'             => uploadVerification('image', $_POST['imageHidden'], $_POST['username'], $pathImage, $action),
             'status'            => $_POST['status'],
-            'otoritas'          => $this->params,
-            'saldo'             => $saldo,
-            'saldo_released'    => $saldo_released,
-            'date_created'      => $date_created,
-            'date_updated'      => $date_updated
+            'otoritas'          => $this->uri->segment(5)
         );
         return $data;
     }
@@ -159,13 +151,18 @@ class Member extends CI_Controller
         echo json_encode($data);
     }
 
-    public function add($otoritas)
+    public function add()
     {
+        $otoritas = $this->uri->segment(5);
         $action = $_POST['action'];
+        if (empty($_FILES['image']['name'])) {
+            $this->form_validation->set_rules('image', 'Gambar', 'required', array('required' => '%s Wajib ada!'));
+        }
         $this->form_validation->set_rules($this->_validation($action, $otoritas));
         if ($this->form_validation->run() === FALSE) {
             $response = array(
                 'error'     => array(
+                    'invalid-image'    => form_error('image'),
                     'invalid-email'    => form_error('email'),
                     'invalid-fnama'     => form_error('fnama'),
                     'invalid-lnama'     => form_error('lnama'),
@@ -196,8 +193,9 @@ class Member extends CI_Controller
         }
     }
 
-    public function edit($otoritas)
+    public function edit()
     {
+        $otoritas = $this->uri->segment(5);
         $action = $_POST['action'];
         $this->form_validation->set_rules($this->_validation($action, $otoritas));
         if ($this->form_validation->run() === FALSE) {

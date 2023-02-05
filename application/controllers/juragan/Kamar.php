@@ -50,22 +50,26 @@ class Kamar extends CI_Controller
             $maps = $this->secure->encrypt_url($this->input->post('maps'));
         } else if ($action === 'update') {
             $uid_kamar = $this->input->post('uid_kamar');
+            $uid_member = $this->input->post('uid_member');
             $uid_gambar = $this->input->post('uid_gambar');
-            $maps = $this->input->post('maps');
+            $maps = ($this->input->post('maps') != '') ? $this->secure->encrypt_url($this->input->post('maps')) : $this->input->post('hidden_maps');
         }
 
         $path = 'public/images/kamar/';
+        $fasilitas = implode(',', $this->input->post('f_umum')) . ',' . implode(',', $this->input->post('f_kamar')) . ',' . implode(',', $this->input->post('f_kamar_mandi')) . ',' . implode(',', $this->input->post('f_parkiran'));
         $data = array(
             'kamar'         => array(
                 'nama'          => $this->input->post('nama'),
+                'jumlah_kamar'  => $this->input->post('jumlah_kamar'),
+                'tipe'          => $this->input->post('tipe'),
                 'harga'         => $this->input->post('harga'),
                 'diskon'        => $this->input->post('diskon'),
                 'uid_kamar'     => $uid_kamar,
                 'uid_gambar'    => $uid_gambar,
                 'uid_member'    => $this->uid_member,
-                'uid_fasilitas' => implode(',', $this->input->post('fasilitas')),
+                'uid_fasilitas' => rtrim($fasilitas, ','),
                 'uid_durasi'    => implode(',', $this->input->post('durasi')),
-                'uid_kategori'  => implode(',', $this->input->post('kategori')),
+                'uid_kategori'  => $this->input->post('kategori'),
                 'luas_kamar'    => $this->input->post('luaskamar'),
                 'status'        => $this->input->post('status'),
                 'deskripsi'     => $this->input->post('deskripsi'),
@@ -73,6 +77,7 @@ class Kamar extends CI_Controller
                 'provinsi'      => $this->input->post('provinsi'),
                 'kota'          => $this->input->post('kota'),
                 'maps'          => ($this->input->post('maps') === '') ? $this->input->post('hidden_maps') : $maps,
+                'url_title'          => url_title($this->input->post('nama') . ' ' . $this->input->post('provinsi') . ' ' . $this->input->post('kota') . ' murah tipe ' . $this->input->post('tipe') . ' u' . rand(1, 1000), 'dash', true),
                 'date_post'     => ($this->input->post('date_post') === null) ? date('Y-m-d H:i:s') : $this->input->post('date_post'),
                 'update_post'   => date('Y-m-d H:i:s')
             ),
@@ -88,7 +93,6 @@ class Kamar extends CI_Controller
             'uid'       => array(
                 'uid_kamar'     => $uid_kamar,
                 'uid_gambar'    => $uid_gambar
-
             )
         );
         return $data;
@@ -98,13 +102,33 @@ class Kamar extends CI_Controller
     {
         $data = array(
             'title'     => 'Tambah kamar kost',
-            'fasilitas' => $this->kamar->getFasilitas(),
+            'f_umum' => $this->kamar->getFasilitas('umum'),
+            'f_kamar' => $this->kamar->getFasilitas('kamar'),
+            'f_kamar_mandi' => $this->kamar->getFasilitas('kamar mandi'),
+            'f_parkiran' => $this->kamar->getFasilitas('PARKIRAN'),
             'durasi'    => $this->kamar->getDurasi(),
             'kategori'  => $this->kamar->getKategori(),
             'juragan'   => $this->kamar->getJuragan(),
             'user'      => $this->member->getMember('juragan', $this->uid_member)
         );
         $this->load->view('juragan/kamar/tambah', $data);
+    }
+
+    public function sendValidasiKamar()
+    {
+        $token  = '5484559434:AAFxveLoGNyw_Wx_Qs9HyowDOusQnIqKET0';
+        $link   = 'https://api.telegram.org:443/bot' . $token . '';
+        $update = file_get_contents($link . '/getUpdates');
+        $response = json_decode($update, TRUE);
+        $chat_id = $response['result'][0]['message']['chat']['id'];
+        $message = 'Hello There [data](www.localhost/sk-kost/admin/kamar/master/validasi/)';
+        $parameters = [
+            'chat_id' => $chat_id,
+            'text'  => $message,
+            'parse_mode' => 'markdown'
+        ];
+        $url = $link . '/sendMessage?' . http_build_query($parameters);
+        file_get_contents($url);
     }
 
     public function save()
@@ -115,6 +139,7 @@ class Kamar extends CI_Controller
             'kamar'     => $this->kamar->addKamar($data['kamar']),
             'gambar'    => $this->kamar->addGambar($data['gambar'])
         );
+        $url = base_url('admin/kamar/master/validasi/') . $eksekusi['kamar']['slug'];
         // send response
         if ($eksekusi['kamar'] === TRUE && $eksekusi['gambar'] === TRUE) {
             $response = array(
@@ -122,6 +147,7 @@ class Kamar extends CI_Controller
                 'status'    => 'success',
                 'message'   => 'Data kamar dan gambar berhasil ditambah!'
             );
+            $this->sendValidasiKamar($url);
             $this->session->set_flashdata('response', $response);
             redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
         } else if ($eksekusi['kamar'] === TRUE && $eksekusi['gambar'] === FALSE) {
@@ -130,6 +156,7 @@ class Kamar extends CI_Controller
                 'status'    => 'success',
                 'message'   => 'Data kamar dan gambar berhasil ditambah!'
             );
+            $this->sendValidasiKamar($url);
             $this->session->set_flashdata('response', $response);
             redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
         } else {
@@ -146,18 +173,22 @@ class Kamar extends CI_Controller
     public function detail($uid_kamar)
     {
         $kamar = $this->kamar->getKamarDetail($uid_kamar);
-        $fasilitas = $this->kamar->getFasilitas();
         $durasi = $this->kamar->getDurasi();
         $kategori = $this->kamar->getKategori();
         $gambar = $this->kamar->getGambar($uid_kamar);
+        $transaksi = $this->kamar->transaksiKamar($uid_kamar);
         $data = array(
             'title'     => $kamar[0]['nama'],
             'user'      => $this->member->getMember('juragan', $this->uid_member),
             'kamar'     => $kamar,
-            'fasilitas' => $fasilitas,
+            'f_umum' => $this->kamar->getFasilitas('umum'),
+            'f_kamar' => $this->kamar->getFasilitas('kamar'),
+            'f_kamar_mandi' => $this->kamar->getFasilitas('kamar mandi'),
+            'f_parkiran' => $this->kamar->getFasilitas('PARKIRAN'),
             'durasi'    => $durasi,
             'kategori'  => $kategori,
-            'gambar'    => $gambar
+            'gambar'    => $gambar,
+            'transaksi' => $transaksi
         );
         $this->load->view('juragan/kamar/detail', $data);
     }
@@ -170,6 +201,7 @@ class Kamar extends CI_Controller
             'gambar'    => $this->kamar->updateGambarKamar($data['gambar'], $data['uid']['uid_gambar'])
         );
 
+
         // send response
         if ($eksekusi['kamar'] === TRUE && $eksekusi['gambar'] === TRUE) {
             $response = array(
@@ -177,22 +209,18 @@ class Kamar extends CI_Controller
                 'status'    => 'success',
                 'message'   => 'Data kamar dan gambar berhasil diupdate!'
             );
-            if ($data['kamar']['status'] == 1) {
-                $this->transaksi->updateHabis($data['uid']['uid_kamar']);
-            }
             $this->session->set_flashdata('response', $response);
-            redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
+            echo json_encode($response);
+            // redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
         } else if ($eksekusi['kamar'] === TRUE && $eksekusi['gambar'] === FALSE) {
             $response = array(
                 'code'      => 200,
                 'status'    => 'success',
                 'message'   => 'Data kamar dan gambar berhasil diupdate!'
             );
-            if ($data['kamar']['status'] == 1) {
-                $this->transaksi->updateHabis($data['uid']['uid_kamar']);
-            }
             $this->session->set_flashdata('response', $response);
-            redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
+            echo json_encode($response);
+            // redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
         } else {
             $response = array(
                 'code'    => 400,
@@ -200,7 +228,9 @@ class Kamar extends CI_Controller
                 'message'   => 'Update kamar dan gambar gagal!'
             );
             $this->session->set_flashdata('response', $response);
-            redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
+            // $this->session->set_flashdata('response', $response);
+            echo json_encode($response);
+            // redirect(base_url('juragan/kamar/detail/') . $data['uid']['uid_kamar']);
         }
     }
 
@@ -208,21 +238,35 @@ class Kamar extends CI_Controller
     {
         $uid_kamar = $_POST['uid_kamar'];
         $uid_gambar = $_POST['uid_gambar'];
-        $eksekusi = $this->kamar->deleteKamar($uid_kamar, $uid_gambar);
-        if ($eksekusi === TRUE) {
+        $this->db->where('uid_kamar', $uid_kamar);
+        $this->db->where('status', 'huni');
+        $this->db->or_where('status', 'booking');
+        $this->db->from('transaksi_detail');
+        $checkTX = $this->db->get();
+        if ($checkTX->num_rows() >= 1) {
             $response = array(
-                'code'      => 200,
-                'status'    => 'success',
-                'message'   => 'Hapus kamar berhasil!'
+                'code'      => 203,
+                'status'    => 'error',
+                'message'   => 'Hapus kamar tidak berhasil, karena kamar berpenghuni/sedang booking!'
             );
             echo json_encode($response);
         } else {
-            $response = array(
-                'code'      => 400,
-                'status'    => 'error',
-                'message'   => 'Hapus kamar gagal!'
-            );
-            echo json_encode($response);
+            $eksekusi = $this->kamar->deleteKamar($uid_kamar, $uid_gambar);
+            if ($eksekusi === TRUE) {
+                $response = array(
+                    'code'      => 200,
+                    'status'    => 'success',
+                    'message'   => 'Hapus kamar berhasil!'
+                );
+                echo json_encode($response);
+            } else {
+                $response = array(
+                    'code'      => 400,
+                    'status'    => 'error',
+                    'message'   => 'Hapus kamar gagal!'
+                );
+                echo json_encode($response);
+            }
         }
     }
 
@@ -235,7 +279,7 @@ class Kamar extends CI_Controller
     {
         $config['upload_path'] = FCPATH . 'public/images/kamar/';
         $config['file_name'] = $filename . pathinfo($_FILES[$variable]["name"], PATHINFO_EXTENSION);
-        $config['allowed_types'] = 'jpg|png';
+        $config['allowed_types'] = 'jpg|png|jpeg';
         $this->upload->initialize($config);
         if (!$this->upload->do_upload($variable)) {
             $error = array('error' => $this->upload->display_errors());

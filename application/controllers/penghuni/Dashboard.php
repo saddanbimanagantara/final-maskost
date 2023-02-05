@@ -27,14 +27,14 @@ class Dashboard extends CI_Controller
 
     public function index()
     {
-        $transaksi = $this->transaksi->gtdPenghuni($this->member_id);
+        $transaksi = $this->transaksi->getTransaksiPerpanjang($this->member_id);
         if ($transaksi) {
             $data = array(
                 'title'     => 'Dashboard penghuni',
                 'user'      => $this->user_log,
                 'data'      => array(
                     'transaksi' => $transaksi,
-                    'kamar'     => $this->transaksi->gtdkamar($transaksi['uid_kamar'])
+                    'kamar'     => $this->transaksi->gtdkamar($transaksi['uid_kamar'], $transaksi['uid_transaksi'])
                 )
             );
         } else {
@@ -44,6 +44,7 @@ class Dashboard extends CI_Controller
                 'data'      => NULL
             );
         }
+
         $this->load->view('penghuni/index', $data);
     }
 }

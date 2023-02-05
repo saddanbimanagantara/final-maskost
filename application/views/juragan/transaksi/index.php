@@ -11,11 +11,12 @@
                     <thead>
                         <td class="align-center">#</td>
                         <td class="align-center">ID Transaksi</td>
-                        <td class="align-center">Jumlah</td>
+                        <td class="align-center">Nama kamar</td>
+                        <td class="align-center">Penghuni</td>
                         <td class="align-center">Status</td>
-                        <td class="align-center">Jenis</td>
-                        <td class="align-center">Waktu</td>
-                        <td class="align-center">Aksi</td>
+                        <td class="align-center">Tgl keluar</td>
+                        <td class="align-center">Perpanjang</td>
+                        <td class="align-center">Data pembayaran</td>
                     </thead>
                     <tbody>
                         <?php
@@ -26,15 +27,63 @@
                                 <td><?= $i++ ?></td>
                                 <td>
                                     <a href="<?= base_url('juragan/transaksi/detail/') . $transaksi['uid_transaksi'] ?>"><?= $transaksi['uid_transaksi'] ?></a>
-                                <td><?= $transaksi['jumlah_pembayaran'] ?></td>
+                                <td><?= $transaksi['nama'] ?></td>
+                                <td><?= $transaksi['fnama'] . ' ' . $transaksi['lnama'] ?></td>
                                 <td>
-                                    <?= ($transaksi['status_pembayaran'] === 'SETTLEMENT') ? '<button class="btn btn-sm btn-outline-success">' . $transaksi['status_pembayaran'] . '</button>' : '<button class="btn btn-sm btn-outline-warning">' . $transaksi['status_pembayaran'] . '</button>' ?>
+                                    <?= ($transaksi['status'] === 'huni') ? '<button class="btn btn-sm btn-outline-success">' . $transaksi['status'] . '</button>' : '<button class="btn btn-sm btn-outline-warning">' . $transaksi['status'] . '</button>' ?>
                                 </td>
-                                <td><?= $transaksi['jenis_pembayaran'] ?></td>
-                                <td><?= $transaksi['waktu_transaksi'] ?></td>
                                 <td>
-                                    <button class="btn btn-icon btn-info mb-1" onclick="detail(this)" uid_transaksi="TX-G354177046-239"><i class="fa-solid fa-circle-info"></i></button>
-                                    <button class="btn btn-icon btn-danger mb-1" onclick="detail(this)" uid_transaksi="TX-G354177046-239"><i class="fas fa-times"></i></button>
+                                    <?php
+                                    $perpanjang = $this->transaksi->getTransaksi($user['uid_member'], null, $transaksi['uid_transaksi']);
+                                    if ($perpanjang[0]['tanggal_keluar']) {
+                                        $dateNow = date('Y-m-d');
+                                        $dateNow = strtotime($dateNow);
+                                        $dateKeluar = strtotime($perpanjang[0]['tanggal_keluar']);
+                                        if ($dateKeluar > $dateNow) {
+                                            echo $perpanjang[0]['tanggal_keluar'];
+                                        } else {
+                                            echo '<span class="text-danger">Sewa habis</span><br>';
+                                            if ($transaksi['status'] == 'huni') {
+                                                echo '<button class="btn btn-sm btn-info" data-uid_transaksi="' . $transaksi['uid_transaksi'] . '" onclick="status(this)">ubah status</button>';
+                                            }
+                                        }
+                                    } else {
+                                        $dateNow = date('Y-m-d');
+                                        $dateNow = strtotime($dateNow);
+                                        $dateKeluar = strtotime($transaksi['tanggal_keluar']);
+                                        if ($dateKeluar > $dateNow) {
+                                            echo $transaksi['tanggal_keluar'];
+                                        } else {
+                                            echo '<span class="text-danger">Sewa habis</span><br>';
+                                            if ($transaksi['status'] == 'huni') {
+                                                echo '<button class="btn btn-sm btn-info" data-uid_transaksi="' . $transaksi['uid_transaksi'] . '" onclick="status(this)">ubah status</button>';
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $perpanjang =  $this->transaksi->countTransaksiPerpanjang($transaksi['uid_transaksi']);
+                                    if ($perpanjang > 0) {
+                                        if ($transaksi['status'] == 'selesai') {
+                                            echo 'ada perpanjang, sudah selesai';
+                                        } else {
+                                            echo 'ada perpanjang,';
+                                        }
+                                    } else {
+                                        if ($transaksi['status'] == 'selesai') {
+                                            echo 'tidak ada perpanjang, sudah selesai';
+                                        } else {
+                                            echo 'belum ada perpanjang';
+                                        }
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    echo ' <a href="' . base_url('juragan/transaksi/pembayaran/') . $transaksi['uid_transaksi'] . '" class="btn btn-sm btn-primary">cek data</a>';
+                                    ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -54,6 +103,23 @@
             autoWidth: false
         })
     })
+
+    function status(data) {
+        var uid_transaksi = $(data).data('uid_transaksi');
+        $.ajax({
+            url: '<?= base_url('juragan/transaksi/update_status/') ?>' + uid_transaksi,
+            type: 'POST',
+            dataType: 'JSON',
+            success: function(data) {
+                swal({
+                    icon: 'success',
+                    text: 'Kamar berhasil diperbaharui'
+                }).then(() => {
+                    location.reload();
+                })
+            }
+        })
+    }
 
     function detail(data) {
         window.location.href = "<?= base_url('juragan/transaksi/detail/') . $transaksi['uid_transaksi'] ?>";

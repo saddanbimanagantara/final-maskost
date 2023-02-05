@@ -11,12 +11,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <script src="<?php echo base_url(); ?>assets/js/stisla.js"></script>
 
 <!-- JS Libraies -->
-<script src="<?php echo base_url(); ?>assets/modules/sweetalert/sweetalert.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/modules/jquery-ui/jquery-ui.min.js"></script>
+<!-- datatables -->
 <script src="<?php echo base_url(); ?>assets/modules/datatables/datatables.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/modules/jquery-ui/jquery-ui.min.js"></script>
 <script src="<?php echo base_url(); ?>assets/modules/datatables/DataTables-1.11.5/js/dataTables.bootstrap4.min.js"></script>
 <script src="<?php echo base_url(); ?>assets/modules/datatables/Select-1.3.4/js/dataTables.select.min.js"></script>
-<!-- <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script> -->
-<script src="<?php echo base_url(); ?>assets/modules/jquery-ui/jquery-ui.min.js"></script>
+<script src="<?php echo base_url(); ?>assets\modules\DataTables\pdfmake-0.1.36/pdfmake.min.js"></script>
+<!-- summernote -->
 <script src="<?php echo base_url(); ?>assets/modules/summernote/summernote-bs4.js"></script>
 
 <?php
@@ -82,7 +84,6 @@ if ($this->uri->segment(2) == "" || $this->uri->segment(2) == "index" || $this->
   <script src="<?php echo base_url(); ?>assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
   <script src="<?php echo base_url(); ?>assets/modules/select2/dist/js/select2.full.min.js"></script>
   <script src="<?php echo base_url(); ?>assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
-  <script src="<?php echo base_url(); ?>assets/modules/sweetalert/sweetalert.min.js"></script>
 <?php
 } elseif ($this->uri->segment(2) == "forms_editor") { ?>
   <script src="<?php echo base_url(); ?>assets/modules/summernote/summernote-bs4.js"></script>
@@ -155,6 +156,7 @@ if ($this->uri->segment(2) == "" || $this->uri->segment(2) == "index" || $this->
 } ?>
 
 <!-- Page Specific JS File -->
+
 <?php
 if ($this->uri->segment(2) == "" || $this->uri->segment(2) == "index") { ?>
   <!-- <script src="<?php echo base_url(); ?>assets/js/page/index.js"></script> -->

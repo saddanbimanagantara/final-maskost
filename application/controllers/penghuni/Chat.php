@@ -27,22 +27,62 @@ class Chat extends CI_Controller
 
     public function index()
     {
-        $getJuragan = $this->chat->getJuragan($this->user_log['member_id']);
         $data = array(
             'title'     => "Chat",
-            'user'      => $this->user_log,
-            'list_user' => $getJuragan
+            'user'      => $this->user_log
         );
         $this->load->view('chat', $data);
     }
 
+    public function test()
+    {
+        $data = $this->chat->getChat($this->user_log['member_id']);
+        echo json_encode($data);
+    }
+
+    public function getPengirim()
+    {
+        $data = $this->chat->getChat($this->user_log['member_id']);
+        $chat = "";
+        foreach ($data as $data) {
+            if ($data['uid_pengirim'] === $this->uid_member) {
+            } else {
+                $chatarea = base_url($this->user_log['otoritas'] . '/chat/area/' . $data['uid_member']);
+                $image = base_url('assets/img/profile/') . $data['otoritas'] . '/' . $data['image'];
+                if (isset($this->kamarPenghuni['nama'])) {
+                    $nama_kamar = 'Juragan anda';
+                } else if ($data['nama'] === null) {
+                    $nama_kamar = 'Calon juragan';
+                } else {
+                    $nama_kamar = 'Penghuni ' . $data['nama'];
+                }
+                $chat .= '<li class="media mt-1" id="media" data-chatid="' . $chatarea . '">
+                        <figure class="avatar mr-3 avatar-lg">
+                            <img src="' . $image . '" alt="">
+                        </figure>
+                        <div class="media-body">
+                            <div class="mt-0 mb-1 font-weight-bold">' . $data['fnama'] . ' ' . $data['lnama'] . ' - ' . $nama_kamar . '</div>
+                            <div class="text-small font-600-bold"><i class="fa-solid fa-message"></i>
+                                ' . $data['message'] . '
+                            </div>
+                            <div class="text-small font-600-bold"><i class="fa-solid fa-clock"></i>
+                                ' . $data['time'] . '
+                            </div>
+                            <a href="' . $chatarea . '" class="btn btn-sm btn-primary">Kirim pesan</a>
+                        </div>
+                    </li>';
+            }
+        }
+        echo $chat;
+    }
+
     public function area()
     {
-        $uid_juragan = $this->kamarPenghuni['uid_member'];
-        if ($uid_juragan) {
-            $penerima = $this->chat->getPenerima($uid_juragan);
+        $uid_member_penghuni = $this->uri->segment(4);
+        if ($uid_member_penghuni) {
+            $penerima = $this->chat->getPenerima($uid_member_penghuni);
             $data = array(
-                'title'         => "Chat dengan " . $penerima['fnama'] . ' ' . $penerima['lnama'],
+                'title'         => "Chat dengan ",
                 'user'          => $this->user_log,
                 'penerima'      => $penerima
             );
@@ -72,13 +112,12 @@ class Chat extends CI_Controller
 
     public function getChat()
     {
-        $uid_juragan = $this->kamarPenghuni['uid_member'];
         $chat = $this->chat->getChatMsg($this->user_log['member_id'], $this->user_log['member_id']);
-        $penerima = $this->chat->getPenerima($uid_juragan);
+        $penerima = $this->chat->getPenerima($this->uri->segment(4));
         $chatBox = "";
         foreach ($chat as $chat) {
-            $position = ($chat['uid_penerima'] != $uid_juragan) ? "left" : "right";
-            $image = ($chat['uid_penerima'] != $uid_juragan) ? base_url() . "assets/img/profile/" . $penerima['otoritas'] . "/" . $penerima['image'] : base_url() . "assets/img/profile/" . $this->user_log['otoritas'] . "/" . $this->user_log['image'];
+            $position = ($chat['uid_penerima'] === $this->uid_member) ? "left" : "right";
+            $image = ($chat['uid_penerima'] === $this->uid_member) ? base_url() . "assets/img/profile/" . $penerima['otoritas'] . "/" . $penerima['image'] : base_url() . "assets/img/profile/" . $this->user_log['otoritas'] . "/" . $this->user_log['image'];
             $chatBox .= '<div class="chat-item chat-' . $position . '">
                         <img src="' . $image . '">
                             <div class="chat-details">

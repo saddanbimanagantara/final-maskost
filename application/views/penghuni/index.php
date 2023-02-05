@@ -1,5 +1,5 @@
 <?php $this->load->view('dist/_partials/header'); ?>
-
+<script src="http://localhost/sk-kost/assets/modules/sweetalert/sweetalert.min.js"></script>
 <div class="main-content">
     <div class="card">
         <div class="card-header">
@@ -8,17 +8,17 @@
         <?php
         if ($data === NULL) {
             echo '<div class="d-flex justify-content-center m-3">
-            <a href="' . base_url('kost') . '" class="btn btn-sm btn-primary">Sewa Kamar Disini</a>
+            <a href="' . base_url('kost/list') . '" class="btn btn-sm btn-primary">Sewa Kamar Disini</a>
             </div>';
         } else {
-            $tgl1 = strtotime($data['transaksi']['tanggal_masuk']);
+            $tgl1 = strtotime(date('Y-m-d'));
             $tgl2 = strtotime($data['transaksi']['tanggal_keluar']);
             $sisa = $tgl2 - $tgl1;
             $sisahari = $sisa / 60 / 60 / 24;
             $tgl = date('Y-m-d');
             if ($sisahari == 0) {
         ?>
-                <script src="http://localhost/sk-kost/assets/modules/sweetalert/sweetalert.min.js"></script>
+
                 <script>
                     swal({
                         icon: "error",
@@ -26,13 +26,12 @@
                     });
                 </script>
                 <div class="d-flex justify-content-center m-3">
-                    <a href="' . base_url('kost') . '" class="btn btn-sm btn-primary">Sewa Kamar Baru</a>
+                    <a href="' . base_url() . '" class="btn btn-sm btn-primary">Sewa Kamar Baru</a>
                 </div>
             <?php
                 die;
-            } else if ($sisahari < 7) {
+            } else if ($sisahari <= 3) {
             ?>
-                <script src="http://localhost/sk-kost/assets/modules/sweetalert/sweetalert.min.js"></script>
                 <script>
                     swal({
                         icon: "warning",
@@ -59,7 +58,6 @@
                                             $this->db->from('transaksi');
                                             $this->db->join('transaksi_detail', 'transaksi_detail.uid_transaksi=transaksi.uid_transaksi');
                                             $this->db->where('transaksi_detail.uid_member', $user['member_id']);
-                                            $this->db->where('transaksi_detail.status', 'huni');
                                             $total = $this->db->get()->row_array();
                                             echo rupiah($total['jumlah']);
                                             ?>
@@ -82,15 +80,25 @@
                                         <td>Sisa</td>
                                         <td class="pl-5 font-weight-bold">
                                             <?php
+                                            $tgl1 = strtotime(date('Y-m-d'));
+                                            $tgl2 = strtotime($data['transaksi']['tanggal_keluar']);
+                                            $sisa = $tgl2 - $tgl1;
+                                            $sisahari = $sisa / 60 / 60 / 24;
                                             $tgl = date('Y-m-d');
-                                            if ($data['transaksi']['tanggal_keluar'] < $tgl) {
-                                                echo "<span class='text-danger'>masa kost sudah habis</span>";
+                                            if ($sisahari <= 3) {
+                                                echo '<span class="text-danger">' . $sisahari . '</span>';
                                             } else {
-                                                $tgl1 = strtotime($data['transaksi']['tanggal_masuk']);
-                                                $tgl2 = strtotime($data['transaksi']['tanggal_keluar']);
-                                                $sisa = $tgl2 - $tgl1;
-                                                $sisahari = $sisa / 60 / 60 / 24;
                                                 echo $sisahari;
+                                            }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="pl-5">
+                                            <?php
+                                            if ($sisahari <= 3) {
+                                                echo '<span class="text-danger">(memasuki masa pembayaran perpanjang)</span>';
                                             }
                                             ?>
                                         </td>
@@ -104,7 +112,12 @@
                                         <td class="pl-5 font-weight-bold"><?= $data['transaksi']['tanggal_masuk'] ?></td>
                                     </tr>
                                 </table>
-                                <a href="<?= base_url('penghuni/pembayaran/perpanjang') ?>" class="float-right">Perpanjang</a>
+                                <?php
+                                if ($sisahari <= 3) {
+                                    echo '<a href="' . base_url('penghuni/pembayaran/perpanjang') . '" class="float-right">Perpanjang</a>';
+                                }
+                                ?>
+
                             </div>
                         </div>
                     </div>

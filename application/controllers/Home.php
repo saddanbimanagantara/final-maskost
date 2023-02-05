@@ -13,12 +13,9 @@ class Home extends CI_Controller
     {
         $data['title'] = "Market Kost";
         $data['kamar'] = $this->kamar->getFetured();
+        $data['fasilitaskamar'] = $this->kamar->getFasilitas();
         $this->load->view('_templatepublic/header', $data);
         $this->load->view('home', $data);
         $this->load->view('_templatepublic/footer', $data);
-    }
-
-    public function kamarby($kategori)
-    {
     }
 }

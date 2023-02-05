@@ -40,24 +40,35 @@ class Keuangan extends CI_Controller
             'saldo_withdraw_settlement' => $this->keuangan->getRekap($this->uid_member, 'SETTLEMENT', "saldo_withdraw"),
             'saldo_withdraw_pending'    => $this->keuangan->getRekap($this->uid_member, 'PENDING', "saldo_withdraw")
         );
+        $filter  = $this->input->post('tahun');
         $data = array(
             'title'             => 'Keuangan',
             'user'              => $this->user_log,
             'keuangan'          => $this->keuangan->getChart($this->uid_member),
-            'transaksi'         => $this->transaksi->getTransaksiByJuragan($this->uid_member),
+            'rekening'          => $this->user->getRekening($this->uid_member),
             'aktivitas'         => $this->keuangan->getKeuanganByJuragan($this->uid_member),
-            'rekap'             => $rekap
+            'rekap'             => $rekap,
+            'filter'            => $filter
         );
         $this->load->view('juragan/keuangan/index', $data);
     }
 
     public function aktivitas()
     {
+        $filter  = $this->input->post('tahun');
+        $rekap = array(
+            'saldo_masuk_settlement'    => $this->keuangan->getRekap($this->uid_member, 'SETTLEMENT', "saldo_masuk"),
+            'saldo_withdraw_settlement' => $this->keuangan->getRekap($this->uid_member, 'SETTLEMENT', "saldo_withdraw"),
+            'saldo_withdraw_pending'    => $this->keuangan->getRekap($this->uid_member, 'PENDING', "saldo_withdraw")
+        );
         $data = array(
             'title'             => 'Aktivitas Keuangan',
             'user'              => $this->user_log,
             'aktivitas'         => $this->keuangan->getKeuanganByJuragan($this->uid_member),
-            'rekening'              => $this->user->getRekening($this->uid_member)
+            'rekening'          => $this->user->getRekening($this->uid_member),
+            'keuangan'          => $this->keuangan->getChart($this->uid_member),
+            'saldoSaya'         => $rekap,
+            'filter'            => $filter
         );
         $this->load->view('juragan/keuangan/aktivitas', $data);
     }
@@ -238,6 +249,7 @@ class Keuangan extends CI_Controller
 
     public function buku()
     {
+        $filter = $this->input->post('tahun');
         $data = array(
             'title'         => 'Buku Keuangan',
             'user'          => $this->user_log,
@@ -247,7 +259,9 @@ class Keuangan extends CI_Controller
                 'masuk'         => $this->keuangan->getBukuKeuanganOffline($this->uid_member, 'in'),
                 'keluar'        => $this->keuangan->getBukuKeuanganOffline($this->uid_member, 'out'),
             ),
-            'buku'          => $this->keuangan->getBukuKeuangan($this->uid_member, null)
+            'chart'         => $this->keuangan->getChartBuku($this->uid_member),
+            'buku'          => $this->keuangan->getBukuKeuangan($this->uid_member, null),
+            'filter'            => $filter
         );
         $this->load->view('juragan/keuangan/buku', $data);
     }
@@ -276,6 +290,57 @@ class Keuangan extends CI_Controller
                 'code'      => 400,
                 'status'    => 'error',
                 'message'   => 'Data berhasil ditambah!'
+            );
+            echo json_encode($response);
+        }
+    }
+
+    public function bukuEdit()
+    {
+        $uid_buku_keuangan = $this->input->post('uidEdit');
+        $data = array(
+            'uid_member'        => $this->uid_member,
+            'nominal'           => $this->input->post('nominalEdit'),
+            'keterangan'         => $this->input->post('keteranganEdit'),
+            'deskripsi'         => $this->input->post('deskripsiEdit'),
+            'date'              => ($this->input->post('dateEdit') === '') ? date('Y-m-d H:i:s') : $this->input->post('dateEdit')
+        );
+
+        $eksekusi = $this->keuangan->bukuEdit($data, $uid_buku_keuangan);
+        if ($eksekusi === TRUE) {
+            $response = array(
+                'code'      => 200,
+                'status'    => 'success',
+                'message'   => 'Data berhasil diedit!'
+            );
+            echo json_encode($response);
+        } else {
+            $response = array(
+                'code'      => 400,
+                'status'    => 'error',
+                'message'   => 'Data berhasil diedit!'
+            );
+            echo json_encode($response);
+        }
+    }
+
+    public function bukuHapus()
+    {
+        $uid_buku_keuangan = $this->input->post('uid_buku_keuangan');
+        $this->db->delete('buku_keuangan', array('uid_buku_keuangan' => $uid_buku_keuangan));
+        $eksekusi = ($this->db->affected_rows() >= 1) ? TRUE : FALSE;
+        if ($eksekusi === TRUE) {
+            $response = array(
+                'code'      => 200,
+                'status'    => 'success',
+                'message'   => 'Data berhasil dihapus!'
+            );
+            echo json_encode($response);
+        } else {
+            $response = array(
+                'code'      => 400,
+                'status'    => 'error',
+                'message'   => 'Data gagal dihapus!'
             );
             echo json_encode($response);
         }

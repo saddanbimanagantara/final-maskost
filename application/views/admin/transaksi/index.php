@@ -16,7 +16,6 @@
                                 <th>Status</th>
                                 <th>Jenis</th>
                                 <th>Waktu</th>
-                                <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,15 +29,11 @@
                                     <td><?= $transaksi['jumlah_pembayaran'] ?></td>
                                     <td>
                                         <span class="btn btn-sm <?= ($transaksi['status_pembayaran'] === 'SETTLEMENT') ? 'btn-outline-success' : 'btn-outline-warning' ?>">
-                                            <?= $transaksi['status_pembayaran'] ?>
+                                            <?= ($transaksi['status_pembayaran'] === 'SETTLEMENT') ? 'APPROVE' : 'PENDING' ?>
                                         </span>
                                     </td>
                                     <td><?= $transaksi['jenis_pembayaran'] ?></td>
                                     <td><?= $transaksi['waktu_transaksi'] ?></td>
-                                    <td class="aling-center text-center">
-                                        <button class="btn btn-icon btn-info mb-1" onclick="detail(this)" uid_transaksi="<?= $transaksi['uid_transaksi'] ?>"><i class="fa-solid fa-circle-info"></i></button>
-                                        <button class="btn btn-icon btn-danger mb-1" onclick="hapus(this)" uid_transaksi="<?= $transaksi['uid_transaksi'] ?>"><i class="fas fa-times"></i></button>
-                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

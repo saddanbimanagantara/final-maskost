@@ -37,9 +37,35 @@ class Transaksi extends CI_Controller
         $data = array(
             'title'     => 'Data transaksi kamar',
             'user'      => $this->member->getMember('juragan', $this->uid_member),
-            'transaksi' => $this->transaksi->getTransaksi()
+            'transaksi' => $this->transaksi->getTransaksi($this->uid_member, 'baru', null)
         );
         $this->load->view('juragan/transaksi/index', $data);
+    }
+
+    public function pembayaran($uid_transaksi)
+    {
+        $data = array(
+            'title'     => 'Data pembayaran dan Perpanjangan',
+            'user'      => $this->user_log,
+            'transaksi' => $this->transaksi->getTransaksi($this->uid_member, null, $uid_transaksi),
+        );
+        $this->load->view('juragan/transaksi/pembayaran', $data);
+    }
+
+    public function update_status($uid_transaksi)
+    {
+        $this->transaksi->updatetransaksi($uid_transaksi);
+        echo json_encode(true);
+    }
+
+    public function dataperpanjang($uid_transaksi)
+    {
+        $data = array(
+            'title'                 => 'Data transaksi perpanjang - ' . $uid_transaksi,
+            'user'                  => $this->user_log,
+            'transaksi_perpanjang'  => $this->transaksi->getDataTransaksiPerpanjang($uid_transaksi)
+        );
+        echo json_encode($data['transaksi_perpanjang']);
     }
 
     public function detail($uid_transaksi)

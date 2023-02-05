@@ -47,6 +47,7 @@ class Withdraw_req extends CI_Controller
         $this->db->set('date_proses', date('Y-m-d H:i:s'));
         $this->db->where('uid_keuangan', $uid_keuangan);
         $this->db->update('keuangan');
+        $this->keuangan->tambahBukuWD($juragan[0]['saldo_withdraw'], $juragan[0]['uid_member']);
         if ($this->db->affected_rows() >= 1) {
             $message = 'Withdraw berhasil diproses sebesar ' . rupiah($juragan[0]['saldo_withdraw']) . '! <br> silakan cek rekening anda!';
             _notif($message, $juragan[0]['email'], 'Withdraw berhasil');

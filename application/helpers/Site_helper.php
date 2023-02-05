@@ -1,5 +1,4 @@
 <?php
-
 function isLogin()
 {
     $ci = &get_instance();

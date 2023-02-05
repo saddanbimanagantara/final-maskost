@@ -48,7 +48,8 @@ class Fasilitas extends CI_Controller
         $data = array(
             'uid_fasilitas'     => '',
             'nama'              => $_POST['nama'],
-            'icon'              => $_POST['icon']
+            'icon'              => $_POST['icon'],
+            'tipe'              => $_POST['tipe']
         );
         $eksekusi = $this->fasilitas->addFasilitas($data);
         if ($eksekusi === TRUE) {
@@ -75,7 +76,8 @@ class Fasilitas extends CI_Controller
         $data = array(
             'uid_fasilitas'     => $_POST['uid_fasilitas'],
             'nama'              => $_POST['nama'],
-            'icon'              => $_POST['icon']
+            'icon'              => $_POST['icon'],
+            'tipe'              => $_POST['tipe']
         );
         $eksekusi = $this->fasilitas->editFasilitas($data, $_POST['uid_fasilitas']);
         if ($eksekusi === TRUE) {

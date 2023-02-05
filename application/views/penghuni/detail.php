@@ -108,10 +108,6 @@
                             <td class="font-weight-bold">Selesai ngekost</td>
                             <td><?= $transaksi['tanggal_keluar']; ?></td>
                         </tr>
-                        <tr>
-                            <td class="font-weight-bold">Perpanjang</td>
-                            <td><a href="##" class="btn btn-sm btn-primary">Ya, perpanjang</a></td>
-                        </tr>
                     </table>
                 </div>
             </div>

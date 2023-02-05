@@ -298,6 +298,10 @@ class Auth extends CI_Controller
 
     public function login()
     {
+        if ($this->session->userdata('member')) {
+            $member = $this->session->userdata('member');
+            redirect(base_url($member['otoritas'] . '/dashboard'));
+        }
         $data = array(
             'title'     => 'Login - Mas Kost'
         );
@@ -362,6 +366,85 @@ class Auth extends CI_Controller
         $this->session->sess_destroy();
         redirect(base_url('auth/login'));
         $this->session->set_flashdata('notifikasi', 'logout_berhasil');
+    }
+
+    public function forgetpassword()
+    {
+        $this->form_validation->set_rules('email', 'Email', 'required', array('required' => '%s harus diisi!'));
+        if (!$this->form_validation->run()) {
+            $data['title']  = 'Lupa password - Mas Kost';
+            $this->load->view('auth/forgetpassword', $data);
+        } else {
+            $email = $this->input->post('email');
+            $token = bin2hex(random_bytes(36));
+            $member_token = $this->db->insert('member_token', array('uid' => '', 'email' => $email, 'token' => $token, 'date_created' => time()));
+            if ($member_token === TRUE) {
+                $pesan = 'Silahkan klik link berikut untuk lupa password akun anda <a href="' . base_url('auth/forgetpasswordverif?token=') . $token . '">Lupa password</a>';
+                $subject = 'Lupa password - Maskost';
+                $sendemail = _notif($pesan, $email, $subject);
+                if ($sendemail === TRUE) {
+                    $data['title'] = "Lupa password - Mas Kost";
+                    $this->session->set_flashdata('notifikasi', 'forgetpasswordsend_success');
+                    $this->load->view('auth/forgetpassword', $data);
+                } else {
+                    $data['title'] = "Lupa password - Mas Kost";
+                    $this->session->set_flashdata('notifikasi', 'forgetpasswordsend_error');
+                    $this->load->view('auth/forgetpassword', $data);
+                }
+            }
+        }
+    }
+
+    public function forgetpasswordverif()
+    {
+        $token = $_GET['token'];
+        $this->form_validation->set_rules('email', 'Email', 'required', array('%s harus diisi!'));
+        $this->form_validation->set_rules(
+            'password',
+            'Password',
+            'required|min_length[8]',
+            array(
+                'required' => '%s harus diisi!',
+                'min_length' => '%s minimal 8 karakter'
+            )
+        );
+        $this->form_validation->set_rules(
+            'passwordrepeat',
+            'Password',
+            'required|min_length[8]|matches[password]',
+            array(
+                'required' => '%s harus diisi!',
+                'min_length' => '%s minimal 8 karakter!',
+                'matches'   => '%s password tidak sama!'
+            )
+        );
+        if (!$this->form_validation->run()) {
+            $data['title']  = 'Lupa password verifikasi - Mas Kost';
+            $this->load->view('auth/forgetpasswordverif', $data);
+        } else {
+            $email = $this->input->post('email');
+            $password = $this->input->post('password');
+            $passwordrepeat = $this->input->post('passwordrepeat');
+            $validation_token = $this->db->get_where('member_token', array('email' => $email, 'token' => $token))->row_array();
+            if ($validation_token != null) {
+                $this->db->set('password', password_hash($password, PASSWORD_DEFAULT));
+                $this->db->where('email', $email);
+                $member_update = $this->db->update('member');
+                if ($member_update === TRUE) {
+                    $this->db->delete('member_token', array('token' => $token));
+                    $this->session->set_flashdata('notifikasi', 'forgetpassword_success');
+                    redirect(base_url('auth/login'));
+                } else {
+                    $this->session->set_flashdata('notifikasi', 'forgetpassword_error');
+                    $data['title']  = 'Lupa password verifikasi - Mas Kost';
+                    $this->load->view('auth/forgetpasswordverif', $data);
+                }
+            } else {
+                $this->session->set_flashdata('notifikasi', 'token_or_email_invalid');
+                $data['title']  = 'Lupa password verifikasi - Mas Kost';
+                $this->load->view('auth/forgetpasswordverif', $data);
+            }
+        }
     }
 
     public function blocked()

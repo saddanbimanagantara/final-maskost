@@ -21,7 +21,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
             <li class="dropdown <?php echo $this->uri->segment(2) == 'transaksi' || $this->uri->segment(2) == 'transaksi' || $this->uri->segment(2) == 'transaksi' ? 'active' : ''; ?>">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-receipt"></i><span>Transaksi</span></a>
                 <ul class="dropdown-menu">
-                    <li class="<?php echo $this->uri->segment(2) == 'transaksi' ? 'active' : ''; ?>"><a class="nav-link" href="<?php echo base_url('juragan/transaksi/'); ?>">Transaksi Invoice</a></li>
+                    <li class="<?php echo $this->uri->segment(2) == 'transaksi' ? 'active' : ''; ?>"><a class="nav-link" href="<?php echo base_url('juragan/transaksi/'); ?>">Transaksi Kamar</a></li>
                 </ul>
             </li>
             <li class="dropdown <?= $this->uri->segment(2) == 'keuangan' ? 'active' : ''; ?>">
@@ -30,9 +30,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <li class="<?php echo $this->uri->segment(3) == 'index' ? 'active' : ''; ?>">
                         <a href="<?= base_url('juragan/keuangan/index') ?>" class="nav-link"><i class="fa-solid fa-chart-bar"></i> <span>Rekap</span></a>
                     </li>
-                    <li class="<?php echo $this->uri->segment(3) == 'aktivitas' ? 'active' : ''; ?>">
+                    <!-- <li class="<?php echo $this->uri->segment(3) == 'aktivitas' ? 'active' : ''; ?>">
                         <a href="<?= base_url('juragan/keuangan/aktivitas') ?>" class="nav-link"><i class="fa-solid fa-money-bill-transfer"></i> <span>Aktivitas</span></a>
-                    </li>
+                    </li> -->
                     <li class="<?php echo $this->uri->segment(3) == 'buku' ? 'active' : ''; ?>">
                         <a href="<?= base_url('juragan/keuangan/buku') ?>" class="nav-link"><i class="fa-solid fa-book"></i> <span>Buku Keuangan</span></a>
                     </li>
@@ -41,15 +41,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     </li>
                 </ul>
             </li>
-            <li class="menu-header">Layanan</li>
-            <li class="dropdown <?= $this->uri->segment(2) == 'chat' ? 'active' : ''; ?>">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-comment-dots"></i> <span>Chat</span></a>
-                <ul class="dropdown-menu">
-                    <li class="<?php echo $this->uri->segment(3) == 'penghuni' ? 'active' : ''; ?>">
-                        <a href="<?= base_url('juragan/chat/penghuni') ?>" class="nav-link"><i class="fa-solid fa-bed"></i> <span>Penghuni</span></a>
-                    </li>
-                </ul>
-            </li>
+            <!-- <li class="menu-header">Layanan</li>
+            <li class="menu <?php echo $this->uri->segment(3) == 'penghuni' ? 'active' : ''; ?>"><a href="<?= base_url('juragan/chat') ?>" class="nav-link"><i class="fa-solid fa-comment-dots"></i><span>Chat</span></a></li> -->
             <li class="menu-header">Pages</li>
             <li class="dropdown <?= $this->uri->segment(1) == 'profile' ? 'active' : ''; ?>">
                 <a href="#" class="nav-link has-dropdown"><i class="far fa-user"></i> <span>Profil</span></a>

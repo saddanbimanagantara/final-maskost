@@ -27,6 +27,9 @@ class Transaction extends CI_Controller
 		$this->load->library('veritrans');
 		$this->veritrans->config($params);
 		$this->load->helper('url');
+		$this->load->model('kamar_m');
+		$this->load->model('keuangan_m');
+		$this->load->model('transaksi_m');
 	}
 
 	public function index()
@@ -36,45 +39,58 @@ class Transaction extends CI_Controller
 
 	public function process()
 	{
-		$order_id = $this->input->post('order_id');
+		$uid_transaksi = $this->input->post('order_id');
 		$action = $this->input->post('action');
 		switch ($action) {
 			case 'status':
-				$this->status($order_id);
+				$this->status($uid_transaksi);
 				break;
 			case 'approve':
-				$this->approve($order_id);
+				$this->approve($uid_transaksi);
 				break;
 			case 'expire':
-				$this->expire($order_id);
+				$this->expire($uid_transaksi);
 				break;
 			case 'cancel':
-				$this->cancel($order_id);
+				$this->cancel($uid_transaksi);
+				$keuangan = array(
+					'status'		=> "CANCEL",
+					'date_updated'	=> date("Y-m-d H:i:s")
+				);
+				$keuangan = $this->keuangan_m->updatePembayaran($keuangan, $uid_transaksi);
+				// data transaksi
+				$transaksi = array(
+					'status_pembayaran'	=> "cancel",
+					'waktu_transaksi'	=> date("Y-m-d H:i:s"),
+					'status_code'		=> 202
+				);
+				$transaksi = $this->transaksi_m->updateTransaksiV2($transaksi, $uid_transaksi);
+				// data transaksi detail
+				$transaksi_detail = array(
+					'status'			=> 'cancel'
+				);
+				$transaksi_detail = $this->transaksi_m->updateTransaksiDetail($transaksi_detail, $uid_transaksi);
 				break;
 		}
 	}
 
 	public function status($order_id)
 	{
-		echo 'test get status </br>';
-		print_r($this->veritrans->status($order_id));
+		echo json_encode($this->veritrans->status($order_id));
 	}
 
 	public function cancel($order_id)
 	{
-		echo 'test cancel trx </br>';
-		echo $this->veritrans->cancel($order_id);
+		print_r($this->veritrans->cancel($order_id));
 	}
 
 	public function approve($order_id)
 	{
-		echo 'test get approve </br>';
 		print_r($this->veritrans->approve($order_id));
 	}
 
 	public function expire($order_id)
 	{
-		echo 'test get expire </br>';
 		print_r($this->veritrans->expire($order_id));
 	}
 }

@@ -20,8 +20,6 @@
                                     <th>Username</th>
                                     <th>Nama</th>
                                     <th>Status</th>
-                                    <th>Saldo availabe</th>
-                                    <th>Saldo released</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -34,7 +32,11 @@
                                         <td class="align-middle"><?= $i++ ?></td>
                                         <td class="align-middle">
                                             <figure class="avatar avatar-lg">
-                                                <img src="<?= base_url('assets/img/profile/') . $otoritas . '/' . $member['image'] ?>">
+                                                <?php
+                                                $imgsrc = '';
+                                                ($otoritas === "admin") ? $imgsrc = base_url('assets/img/profile/admin/') . $member['image'] : $imgsrc = base_url('assets/img/profile/') . $otoritas . '/' . $member['image']
+                                                ?>
+                                                <img src="<?= $imgsrc ?>">
                                             </figure>
                                         </td>
                                         <td class="align-middle"><?= $member['email'] ?></td>
@@ -45,8 +47,6 @@
                                             echo ($member['status'] === "aktif") ? '<span class="badge badge-primary">Aktif</span>' : '<span class="badge badge-warning">Tidak aktif</span>';
                                             ?>
                                         </td>
-                                        <td class="align-middle"><?= rupiah($member['saldo']) ?></td>
-                                        <td class="align-middle"><?= rupiah($member['saldo_released']) ?></td>
                                         <td class="align-middle text-center">
                                             <button class="btn btn-icon btn-info mb-1" onclick="edit(this)" uid_member="<?= $member['uid_member'] ?>"><i class="far fa-edit"></i></button>
                                             <button class="btn btn-icon btn-danger mb-1" onclick="hapus(this)" uid_member="<?= $member['uid_member'] ?>"><i class="fas fa-times"></i></button>
@@ -66,12 +66,12 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit kategroi</h5>
+                <h5 class="modal-title">Edit Juragan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="" method="post" id="form-data" enctype="multipart/form-data">
+            <form action="" method="post" id="form-data" enctype="multipart/form-data" class="needs-validation">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Profile image</label>
@@ -84,7 +84,10 @@
                                     </figure>
                                 </div>
                             </div>
-                            <input type="file" class="form-control" name="image" id="image">
+                            <input type="file" class="form-control image" name="image" id="image">
+                            <div class="invalid-feedback" id="invalid-image">
+                                Oh tidak! Nama wajib diisi.
+                            </div>
                         </div>
                     </div>
                     <div class="hidden-section">
@@ -180,23 +183,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm 12">
-                            <div class="form-group">
-                                <div class="form-group">
-                                    <label for="otoritas">Saldo</label>
-                                    <input type="text" class="form-control" id="saldo" name="saldo">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm 12">
-                            <div class="form-group">
-                                <label for="otoritas">Saldo released</label>
-                                <input type="text" class="form-control" id="saldo_released" name="saldo_released">
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
                 <div class="modal-footer bg-whitesmoke br">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -268,13 +254,9 @@
             $('#imageAvatar').attr('src', '<?= base_url('assets/img/profile/default.jpg') ?>');
             $('#action').val('add');
             $('#otoritas').val('<?= $otoritas ?>');
-            $('#saldo').val(0);
-            $('#saldo').attr('disabled', true);
-            $('#saldo_released').val(0);
-            $('#saldo_released').attr('disabled', true);
-
             showmodal();
         })
+
 
         // reset modal
         resetmodal();
@@ -311,9 +293,11 @@
                 $('#jenis_kelamin').val(response.jenis_kelamin);
                 $('#no_hp').val(response.no_hp);
                 $('#status').val(response.status);
-                $('#saldo').val(response.saldo);
-                $('#saldo_released').val(response.saldo_released);
-                $('#imageAvatar').attr('src', '<?= base_url('assets/img/profile/') . $otoritas . '/' ?>' + response.image);
+                <?php
+                $imgsrc = '';
+                ($otoritas === "admin") ? $imgsrc = base_url('assets/img/profile/admin/') : $imgsrc = base_url('assets/img/profile/') . $otoritas . '/';
+                ?>
+                $('#imageAvatar').attr('src', '<?= $imgsrc ?>' + response.image);
                 $('#imageHidden').val(response.image);
                 $('#date_created').val(response.date_created);
             }
@@ -331,14 +315,14 @@
             },
             success: function(response) {
                 if (response['code'] === 200) {
-                    swal(response['message'], {
-                        icon: response['status'],
+                    swal(`${response['message']}`, {
+                        icon: `${response['status']}`,
                     }).then(function() {
                         window.location.reload();
                     });
                 } else {
-                    swal(response['message'], {
-                        icon: response['status'],
+                    swal(`${response['message']}`, {
+                        icon: `${response['status']}`,
                     }).then(function() {
                         window.location.reload();
                     });

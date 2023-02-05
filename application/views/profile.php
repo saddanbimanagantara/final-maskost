@@ -72,20 +72,7 @@
     }
 </style>
 <div class="main-content">
-    <?php
-    if ($this->session->flashdata('message')) {
-    ?>
-        <script src="http://localhost/sk-kost/assets/modules/sweetalert/sweetalert.min.js"></script>
-        <script>
-            swal({
-                title: "<?= $this->session->flashdata('icon') ?>",
-                text: "<?= $this->session->flashdata('message') ?>",
-                icon: "<?= $this->session->flashdata('icon') ?>"
-            })
-        </script>
-    <?php
-    }
-    ?>
+
     <section class="section">
         <div class="section-header">
             <h1>Profile</h1>
@@ -169,6 +156,18 @@
 </div>
 <?php $this->load->view('dist/_partials/footer'); ?>
 <script>
+    <?php
+    if ($this->session->flashdata('message')) {
+    ?>
+        swal({
+            title: "<?= $this->session->flashdata('icon') ?>",
+            text: "<?= $this->session->flashdata('message') ?>",
+            icon: "<?= $this->session->flashdata('icon') ?>"
+        })
+    <?php
+    }
+    ?>
+
     function readURL(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();

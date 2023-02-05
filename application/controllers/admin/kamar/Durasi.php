@@ -50,7 +50,7 @@ class Durasi extends CI_Controller
             'durasi'              => $_POST['durasi'],
             'nama'              => $_POST['nama']
         );
-        $eksekusi = $this->uid_durasi->addDurasi($data);
+        $eksekusi = $this->durasi->addDurasi($data);
         if ($eksekusi === TRUE) {
             $response = array(
                 'code'      => 200,

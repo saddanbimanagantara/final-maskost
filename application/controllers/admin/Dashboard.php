@@ -38,8 +38,8 @@ class Dashboard extends CI_Controller
             'title'     => "SK KOST",
             'user'      => $this->user_log,
             'kamar'     => array(
-                'available' => $this->kamar->hitungKamar("1"),
-                'sold'      => $this->kamar->hitungKamar("0"),
+                'available' => $this->kamar->hitungKamar("0"),
+                'sold'      => $this->kamar->hitungKamar("1"),
             ),
             'member'    => array(
                 'juragan'   => $this->member->hitungMember('juragan'),

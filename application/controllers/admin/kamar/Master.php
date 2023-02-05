@@ -34,8 +34,22 @@ class Master extends CI_Controller
             'title'     => "Master kamar",
             'user'      => $this->user_log,
         );
-        $data['kamar'] = $this->kamar->getKamar();
+        $data['kamar'] = $this->kamar->getKamar(null, 'validasi');
         $this->load->view('admin/kamar/index', $data);
+    }
+
+    public function updatestatus($uid_kamar)
+    {
+        $status = $this->input->post('status');
+        $email = $this->input->post('email');
+        $this->db->set('status', $this->input->post('status'));
+        $this->db->where('uid_kamar', $uid_kamar);
+        $this->db->update('kamar_kost');
+        $result = ($this->db->affected_rows() >= 1) ? TRUE : FALSE;
+        if ($result === TRUE) {
+            _notif('Kamar ' . $status, $email, 'Status Kamar Updated');
+        }
+        echo json_encode($result);
     }
 
     public function detail($uid)
@@ -52,10 +66,7 @@ class Master extends CI_Controller
             'durasi'    => $durasi,
             'kategori'  => $kategori,
             'gambar'    => $gambar,
-            'user'      => array(
-                'fnama' => $this->user[0],
-                'lnama' => $this->user[1]
-            )
+            'user'      => $this->user_log,
         );
         $this->load->view('admin/kamar/detail', $data);
     }
@@ -73,7 +84,7 @@ class Master extends CI_Controller
         } else if ($action === 'update') {
             $uid_kamar = $this->input->post('uid_kamar');
             $uid_gambar = $this->input->post('uid_gambar');
-            $maps = $this->input->post('maps');
+            $maps = ($this->input->post('maps') != '') ? $this->secure->encrypt_url($this->input->post('maps')) : $this->input->post('hidden_maps');
         }
 
         $data = array(
@@ -94,6 +105,7 @@ class Master extends CI_Controller
                 'provinsi'      => $this->input->post('provinsi'),
                 'kota'          => $this->input->post('kota'),
                 'maps'          => ($this->input->post('maps') === '') ? $this->input->post('hidden_maps') : $maps,
+                'slug'          => url_title($this->input->post('nama') . $this->input->post('tipe') . rand(3), true),
                 'date_post'     => ($this->input->post('date_post') === null) ? date('Y-m-d H:i:s') : $this->input->post('date_post'),
                 'update_post'   => date('Y-m-d H:i:s')
             ),
@@ -115,6 +127,11 @@ class Master extends CI_Controller
         return $data;
     }
 
+    public function validasi()
+    {
+        echo 'hello ini validasi kamar';
+    }
+
     // add kamar
     function add()
     {
@@ -124,10 +141,7 @@ class Master extends CI_Controller
             'durasi' => $this->kamar->getDurasi(),
             'kategori' => $this->kamar->getKategori(),
             'juragan'   => $this->kamar->getJuragan(),
-            'user'      => array(
-                'fnama' => $this->user[0],
-                'lnama' => $this->user[1]
-            ),
+            'user'      => $this->user_log,
         );
         $this->load->view('admin/kamar/add', $data);
     }
@@ -186,15 +200,18 @@ class Master extends CI_Controller
                 'message'   => 'Data kamar dan gambar berhasil diupdate!'
             );
             $this->session->set_flashdata('response', $response);
-            redirect(base_url('admin/kamar/master/detail/') . $data['uid']['uid_kamar']);
+            $this->kamar->updateKamarTransaksi($data['uid']['uid_kamar'], $this->input->post('status'));
+            $this->session->set_flashdata('response', $response);
+            echo json_encode($response);
         } else if ($eksekusi['kamar'] === TRUE && $eksekusi['gambar'] === FALSE) {
             $response = array(
                 'code'      => 200,
                 'status'    => 'success',
                 'message'   => 'Data kamar dan gambar berhasil diupdate!'
             );
+            $this->kamar->updateKamarTransaksi($data['uid']['uid_kamar'], $this->input->post('status'));
             $this->session->set_flashdata('response', $response);
-            redirect(base_url('admin/kamar/master/detail/') . $data['uid']['uid_kamar']);
+            echo json_encode($response);
         } else {
             $response = array(
                 'code'    => 400,
@@ -202,7 +219,9 @@ class Master extends CI_Controller
                 'message'   => 'Update kamar dan gambar gagal!'
             );
             $this->session->set_flashdata('response', $response);
-            redirect(base_url('admin/kamar/master/detail/') . $data['uid']['uid_kamar']);
+            // $this->kamar->updateKamarTransaksi($data['uid']['uid_kamar'], $this->input->post('status'));
+            $this->session->set_flashdata('response', $response);
+            echo json_encode($response);
         }
     }
 

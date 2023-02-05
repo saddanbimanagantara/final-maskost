@@ -27,6 +27,7 @@
                 chatcontent.innerHTML = "<div class='mychatbox' id='mychatbox'>" + data + "</div>";
             }
         })
+        chatcontent.scrollTop = chatcontent.scrollHeight;
     }, 500);
 
     $("#chat-form").submit(function() {

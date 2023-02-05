@@ -1,8 +1,8 @@
 <?php $this->load->view('dist/_partials/header'); ?>
 <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-Ejyk6W8iGNPzCd2V"></script>
-<div class="main-content mt-4">
+<div class="main-content">
     <div class="card">
-        <div class="card-header bg-primary text-center text-white">
+        <div class="card-header">
             <h5 class="pt-2"><?= $title ?></h5>
         </div>
         <div class="card-body">
@@ -104,21 +104,20 @@
                 uid_durasi: $('#durasi').val(),
                 tanggal_masuk: $('#tanggal_masuk').val(),
                 tanggal_keluar: $('#tanggal_keluar').val(),
-                jenis: 'perpanjang',
+                jenis: "perpanjang",
                 uid_member: '<?= $user['member_id'] ?>',
                 uid_kamar: '<?= $kamar['uid_kamar'] ?>',
                 nama_kost: '<?= $kamar['nama'] ?>',
                 fnama: '<?= $user['fnama'] ?>',
                 lnama: '<?= $user['lnama'] ?>',
                 email: '<?= $user['email'] ?>',
-                alamat: $('#alamat').val()
+                alamat: $('#alamat').val(),
+                no_hp: '<?= $user['no_hp'] ?>'
             },
             cache: false,
 
             success: function(data) {
                 //location = data;
-
-                console.log('token = ' + data);
                 var token = data;
                 var resultType = document.getElementById('result-type');
                 var resultData = document.getElementById('result-data');
@@ -127,30 +126,88 @@
                     $("#result-type").val(type);
                     $("#result-data").val(JSON.stringify(data));
                     $("#token").val(token);
-                    //resultType.innerHTML = type;
-                    //resultData.innerHTML = JSON.stringify(data);
                 }
-
                 snap.pay(data, {
-
                     onSuccess: function(result) {
                         changeResult('success', result);
-                        console.log(result.status_message);
-                        console.log(result);
                         $("#token").val(data);
-                        $("#payment-form").submit();
+                        $.ajax({
+                            url: '<?= site_url() ?>snap/saveData',
+                            type: 'POST',
+                            dataType: 'JSON',
+                            data: {
+                                uid_perpanjang: '<?= $tx['uid_transaksi'] ?>',
+                                jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                                uid_durasi: $('#durasi').val(),
+                                tanggal_masuk: $('#tanggal_masuk').val(),
+                                tanggal_keluar: $('#tanggal_keluar').val(),
+                                jenis: "perpanjang",
+                                uid_member: '<?= $user['member_id'] ?>',
+                                uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                                result_data: $('#result-data').val(),
+                                token: $('#token').val()
+                            },
+                            cache: false,
+                            success: function(data) {
+                                url = "<?= base_url() ?>" + 'snap/finish?order_id=' + data.order_id + '&status=' + data.status;
+                                window.location.href = url;
+                            }
+                        });
                     },
                     onPending: function(result) {
                         changeResult('pending', result);
-                        console.log(result.status_message);
                         $("#token").val(data);
-                        $("#payment-form").submit();
+                        $.ajax({
+                            url: '<?= site_url() ?>snap/saveData',
+                            type: 'POST',
+                            dataType: 'JSON',
+                            data: {
+                                uid_perpanjang: '<?= $tx['uid_transaksi'] ?>',
+                                jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                                uid_durasi: $('#durasi').val(),
+                                tanggal_masuk: $('#tanggal_masuk').val(),
+                                tanggal_keluar: $('#tanggal_keluar').val(),
+                                jenis: "perpanjang",
+                                uid_member: '<?= $user['member_id'] ?>',
+                                uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                                result_data: $('#result-data').val(),
+                                token: $('#token').val()
+                            },
+                            cache: false,
+                            success: function(data) {
+                                url = "<?= base_url() ?>" + 'snap/finish?order_id=' + data.order_id + '&status=' + data.status;
+                                window.location.href = url;
+                            }
+                        });
                     },
                     onError: function(result) {
                         $("#token").val(data);
                         changeResult('error', result);
-                        console.log(result.status_message);
-                        $("#payment-form").submit();
+                        $.ajax({
+                            url: '<?= site_url() ?>snap/saveData',
+                            type: 'POST',
+                            dataType: 'JSON',
+                            data: {
+                                uid_perpanjang: '<?= $tx['uid_transaksi'] ?>',
+                                jumlah_pembayaran: $('#jumlah_pembayaran').val(),
+                                uid_durasi: $('#durasi').val(),
+                                tanggal_masuk: $('#tanggal_masuk').val(),
+                                tanggal_keluar: $('#tanggal_keluar').val(),
+                                jenis: "perpanjang",
+                                uid_member: '<?= $user['member_id'] ?>',
+                                uid_kamar: '<?= $kamar['uid_kamar'] ?>',
+                                result_data: $('#result-data').val(),
+                                token: $('#token').val()
+                            },
+                            cache: false,
+                            success: function(data) {
+                                url = "<?= base_url() ?>" + 'snap/finish?order_id=' + data.order_id + '&status=' + data.status;
+                                window.location.href = url;
+                            }
+                        });
+                    },
+                    onClose: function(result) {
+                        location.reload();
                     }
                 });
             }

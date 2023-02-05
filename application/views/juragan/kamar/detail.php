@@ -7,85 +7,180 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <h4 class="card-title">
-                            <a href="<?= base_url('juragan/kamar') ?>"><i class="fa-solid fa-circle-arrow-left"></i> </a> Detail Kost - <?= $kamar[0]['nama'] ?> <?= $this->uri->segment(3) ?>
+                            <a href="<?= base_url('juragan/kamar') ?>"><i class="fa-solid fa-circle-arrow-left"></i> </a> Detail Kost - <?= $kamar[0]['nama'] ?> (penghuni : <?= ($transaksi) ? $transaksi[0]['fnama'] . ' ' . $transaksi[0]['lnama'] : '-' ?>)
                         </h4>
                         <div class="hapus-kamar">
                             <button class="btn btn-sm btn-sm btn-danger" onClick="hapus(this)" uid_kamar="<?= $kamar[0]['uid_kamar'] ?>" uid_kamar="<?= $kamar[0]['uid_gambar'] ?>" uid_gambar="<?= $kamar[0]['uid_gambar'] ?>"><i class="fa-solid fa-trash-alt"></i></button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form action="<?= base_url('juragan/kamar/update') ?>" method="POST" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label for="nama">Nama kamar</label>
-                                <input type="hidden" name="uid_kamar" class="uid_kamar" id="uid_kamar" value="<?= $kamar[0]['uid_kamar'] ?>">
-                                <input type="hidden" name="uid_gambar" class="uid_gambar" id="uid_gambar" value="<?= $kamar[0]['uid_gambar'] ?>">
-                                <input type="hidden" name="uid_member" class="uid_member" id="uid_member" value="<?= $kamar[0]['uid_member'] ?>">
-                                <input type="hidden" name="date_post" class="date_post" id="date_post" value="<?= $kamar[0]['date_post'] ?>">
-                                <input type="text" class="form-control nama" id="nama" value="<?= $kamar[0]['nama'] ?>" name="nama">
+                        <form id="edit-form" action="<?= base_url('juragan/kamar/update') ?>" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            <div class="row">
+                                <div class="col-md-5 col-sm-12">
+                                    <input type="hidden" name="uid_kamar" class="uid_kamar" id="uid_kamar" value="<?= $kamar[0]['uid_kamar'] ?>">
+                                    <input type="hidden" name="uid_gambar" class="uid_gambar" id="uid_gambar" value="<?= $kamar[0]['uid_gambar'] ?>">
+                                    <input type="hidden" name="uid_member" class="uid_member" id="uid_member" value="<?= $kamar[0]['uid_member'] ?>">
+                                    <input type="hidden" name="date_post" class="date_post" id="date_post" value="<?= $kamar[0]['date_post'] ?>">
+                                    <div class="form-group">
+                                        <label for="nama">Nama kamar</label>
+                                        <input type="text" class="form-control nama" id="nama" value="<?= $kamar[0]['nama'] ?>" name="nama" required>
+                                        <div class="invalid-feedback">
+                                            Nama harus diisi!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="tipekamar">Tipe Kamar</label>
+                                        <select name="tipe" id="tipe" class="form-control" required>
+                                            <option value="A" <?= ($kamar[0]['tipe'] == 'A') ? 'selected' : '' ?>>Tipe A Maks. 1 orang/ kamar</option>
+                                            <option value="B" <?= ($kamar[0]['tipe'] == 'B') ? 'selected' : '' ?>>Tipe B Maks. 2 orang/ kamar</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Tipe kamar harus dipilih!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-12">
+                                    <label class="">Validasi Kamar</label>
+                                    <?php
+                                    if ($kamar[0]['status'] == 'DITOLAK') {
+                                        echo '<input type="text" name="status" value="VALIDASI" hidden>';
+                                    } else if ($kamar[0]['status'] == 'VALIDASI') {
+                                        echo '<input type="text" name="status" value="VALIDASI" hidden>';
+                                    } else if ($kamar[0]['status'] == 'APPROVE') {
+                                        echo '<input type="text" name="status" value="APPROVE" hidden>';
+                                    }
+                                    ?>
+
+                                    <a tabindex="0" class="btn btn-sm 
+                                    <?php
+                                    if ($kamar[0]['status'] == 'APPROVE') echo 'btn-success';
+                                    if ($kamar[0]['status'] == 'VALIDASI') echo 'btn-warning';
+                                    if ($kamar[0]['status'] == 'DITOLAK') echo 'btn-danger'; ?>
+                                    " role="button" data-toggle="popover" data-trigger="focus" title="" data-content="Validasi kamar yaitu kamar sedang dicek oleh admin apakah data kamar layak tampil diwebsite atau tidak (APPROVE LOLOS VERIFIKASI, DITOLAK TIDAK LOLOS VERIFIKASI, PROSES VALIDASI SEDANG PROSES VERIFIKASI)" data-original-title="Validasi kamar">
+                                        <?php
+                                        if ($kamar[0]['status'] == 'APPROVE') echo 'APPROVE';
+                                        if ($kamar[0]['status'] == 'VALIDASI') echo 'PROSES VALIDASI';
+                                        if ($kamar[0]['status'] == 'DITOLAK') echo 'DI TOLAK';
+                                        ?></a>
+                                </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                <div class="col-md-4 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="harga">Jumlah kamar</label>
+                                        <input class="form-control" type="number" name="jumlah_kamar" id="jumlah_kamar" min="<?= $kamar[0]['terjual'] ?>" value="<?= $kamar[0]['jumlah_kamar'] ?>" required>
+                                        <span class="text-danger terjual"></span>
+                                        <div class="invalid-feedback">
+                                            Jumlah kamar harus diisi!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-12">
                                     <div class="form-group">
                                         <label for="nama">Harga kamar</label>
-                                        <input type="text" class="form-control harga" id="harga" name="harga" value="<?= $kamar[0]['harga'] ?>">
+                                        <input type="text" class="form-control harga" min="100000" max="20000000" id="harga" name="harga" value="<?= $kamar[0]['harga'] ?>" required>
+                                        <div class="invalid-feedback">
+                                            Harga harus diisi! minimal Rp 100.000
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                <div class="col-md-4 col-sm-12">
                                     <div class="form-group">
                                         <label for="nama">Diskon kamar</label>
-                                        <input type="text" class="form-control diskon" id="diskon" name="diskon" value="<?= $kamar[0]['diskon'] ?>">
+                                        <input type="text" class="form-control diskon" id="diskon" name="diskon" value="<?= $kamar[0]['diskon'] ?>" required>
+                                        <div class="invalid-feedback">
+                                            Diskon harus diisi!
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-6">
+                            <p class="font-weight-bold">FASILITAS</p>
+                            <div class="row mb-2">
+                                <div class="col-md-6 col-sm-12">
                                     <div class="form-group">
-                                        <label>Fasilitas</label>
-                                        <select class="form-control select2 fasilitas" multiple name="fasilitas[]" id="fasilitas">
-                                            <option value="0" default>Pilih Fasilitas</option>
-                                            <?php foreach ($fasilitas as $fasilitas) : ?>
-                                                <option value="<?= $fasilitas['uid_fasilitas'] ?>"><?= $fasilitas['nama'] ?></option>
+                                        <label>Fasilitas Umum</label>
+                                        <select class="form-control select2" multiple name="f_umum[]" id="f_umum" style="width: 100%">
+                                            <?php foreach ($f_umum as $f_umum) : ?>
+                                                <option value="<?= $f_umum['uid_fasilitas'] ?>"><?= $f_umum['nama'] ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label>Fasilitas Kamar</label>
+                                        <select class="form-control select2" multiple name="f_kamar[]" id="f_kamar" style="width: 100%" required>
+                                            <?php foreach ($f_kamar as $f_kamar) : ?>
+                                                <option value="<?= $f_kamar['uid_fasilitas'] ?>"><?= $f_kamar['nama'] ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Fasilitas Kamar harus dipilih!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label>Fasilitas Kamar Mandi</label>
+                                        <select class="form-control select2" multiple name="f_kamar_mandi[]" id="f_kamar_mandi" style="width: 100%" required>
+                                            <?php foreach ($f_kamar_mandi as $f_kamar_mandi) : ?>
+                                                <option value="<?= $f_kamar_mandi['uid_fasilitas'] ?>"><?= $f_kamar_mandi['nama'] ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Fasilitas Kamar Mandi harus dipilih!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label>Fasilitas Parkiran</label>
+                                        <select class="form-control select2" multiple name="f_parkiran[]" id="f_parkiran" style="width: 100%">
+                                            <?php foreach ($f_parkiran as $f_parkiran) : ?>
+                                                <option value="<?= $f_parkiran['uid_fasilitas'] ?>"><?= $f_parkiran['nama'] ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="font-weight-bold">DURASI DAN KATEGORI KAMAR:</p>
+                            <div class="row mb-2">
+                                <div class="col-lg-5 col-md-6 col-sm-6">
                                     <div class="form-group">
                                         <label>Durasi</label>
-                                        <select class="form-control select2 durasi" multiple name="durasi[]" id="durasi">
-                                            <option value="0" default>Pilih durasi</option>
+                                        <select class="form-control select2 durasi" multiple name="durasi[]" id="durasi" required>
                                             <?php foreach ($durasi as $durasi) : ?>
                                                 <option value="<?= $durasi['uid_durasi'] ?>"><?= $durasi['nama'] ?></option>
                                             <?php endforeach; ?>
                                         </select>
+                                        <div class="invalid-feedback">
+                                            Durasi harus dipilih!
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="col-md-5 col-sm-12">
                                     <div class="form-group">
                                         <label>Kategori kamar</label>
-                                        <select class="form-control select2 kategori" multiple name="kategori[]" id="kategori">
-                                            <option value="0" default>Pilih kategori</option>
+                                        <select class="form-control" name="kategori" id="kategori" style="width:100%;" required>
+                                            <option value="">pilih kategori</option>
                                             <?php foreach ($kategori as $kategori) : ?>
-                                                <option value="<?= $kategori['uid_kategori'] ?>"><?= $kategori['nama_kategori'] ?></option>
+                                                <option value="<?= $kategori['uid_kategori'] ?>" <?= ($kategori['uid_kategori'] === $kamar[0]['uid_kategori']) ? 'selected' : ''; ?>><?= $kategori['nama_kategori'] ?></option>
                                             <?php endforeach; ?>
                                         </select>
+                                        <div class="invalid-feedback">
+                                            Kategori harus dipilih!
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-md-3 col-sm-12">
+                                <div class="col-lg-2 col-md-3 col-sm-12">
                                     <div class="form-group">
                                         <label for="luaskamar">Luas kamar</label>
-                                        <input type="text" class="form-control luaskamar" name="luaskamar" id="luaskamar" value="<?= $kamar[0]['luas_kamar'] ?>">
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-3 col-sm-12">
-                                    <div class="form-group">
-                                        <label class="d-block">Status</label>
-                                        <select name="status" id="status" class="status form-control">
-                                            <option value="0" <?= $kamar[0]['status'] == 0 ? ' selected="selected"' : ''; ?>>Huni</option>
-                                            <option value="1" <?= $kamar[0]['status'] == 1 ? ' selected="selected"' : ''; ?>>Kosong</option>
-                                        </select>
+                                        <input type="text" class="form-control luaskamar" name="luaskamar" id="luaskamar" value="<?= $kamar[0]['luas_kamar'] ?>" required>
+                                        <div class="invalid-feedback">
+                                            Luas kamar harus diisi!
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -93,7 +188,10 @@
                                 <div class="col-lg-12 col-md-12 col-sm-12">
                                     <div class="form-group">
                                         <label for="deskripsi">Deskripsi kamar</label>
-                                        <textarea name="deskripsi" class="deskripsi" id="deskripsi" style="height: 200px;"><?= $kamar[0]['deskripsi'] ?></textarea>
+                                        <textarea name="deskripsi" class="deskripsi" id="deskripsi" style="height: 200px;" required><?= $kamar[0]['deskripsi'] ?></textarea>
+                                        <div class="invalid-feedback">
+                                            Diskripsi harus diisi!
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -101,22 +199,31 @@
                                 <div class="col-lg-12 col-md-12 col-sm-12">
                                     <div class="form-group">
                                         <label for="Alamat">Alamat</label>
-                                        <input type="text" class="form-control alamat" name="alamat" id="alamat" style="height: 80px;" placeholder="Masukan alamat lengkap" value="<?= $kamar[0]['alamat'] ?>">
+                                        <input type="text" class="form-control alamat" name="alamat" id="alamat" style="height: 80px;" placeholder="Masukan alamat lengkap" value="<?= $kamar[0]['alamat'] ?>" required>
+                                        <div class="invalid-feedback">
+                                            Alamat harus diisi!
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12">
                                     <div class="form-group">
                                         <label for="Provinsi">Provinsi</label>
-                                        <select class="form-control provinsi" name="provinsi" id="provinsi">
+                                        <select class="form-control provinsi" name="provinsi" id="provinsi" required>
                                         </select>
+                                        <div class="invalid-feedback">
+                                            Provinsi harus dipilih!
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12">
                                     <div class="form-group">
                                         <label for="Kota">Kota</label>
-                                        <select class="form-control kota" name="kota" id="kota">
+                                        <select class="form-control kota" name="kota" id="kota" required>
                                             <option value="">Pilih Kota/Kabupaten</option>
                                         </select>
+                                        <div class="invalid-feedback">
+                                            Kota/kabupaten harus dipilih!
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12">
@@ -127,7 +234,7 @@
                                         <input type="text" hidden name="hidden_maps" id="hidden_maps" value="<?= $kamar[0]['maps'] ?>">
                                         <small>Maps lokasi kost anda:</small>
                                         <div class="row">
-                                            <div class="col-md-6 col-sm-12" id="maps-frame">
+                                            <div class="col-md-6 col-sm-12 maps-frame" id="maps-frame">
                                                 <?= $kamar[0]['maps'] != "" ? $this->secure->decrypt_url($kamar[0]['maps']) : ''; ?>
                                             </div>
                                         </div>
@@ -183,7 +290,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="btn btn-primary simpan" id="simpan">Simpan</button>
+                            <?php
+                            if ($kamar[0]['status'] == 'DITOLAK') {
+                                echo '<button type="submit" name="submit" class="next btn btn-info simpan" id="simpan">Ajukan Ulang</button>';
+                            } else if ($kamar[0]['status'] == 'VALIDASI') {
+                                // echo '<button type="submit" name="submit" class="next btn btn-info simpan" id="simpan" disabled>PROSES VALIDASI</button>';
+                            } else if ($kamar[0]['status'] == 'APPROVE') {
+                                echo '<button type="submit" name="submit" class="next btn btn-info simpan" id="simpan">Simpan</button>';
+                            }
+                            ?>
+
                         </form>
                     </div>
                 </div>
@@ -195,19 +311,57 @@
 <script>
     var prov_id;
     $(document).ready(function() {
+        $('#jumlah_kamar').change(function() {
+            var terjual = '<?= $kamar[0]['terjual'] ?>';
+            if ($('#jumlah_kamar').val() < terjual) {
+                console.log($('#jumlah_kamar').val())
+                $('.terjual').html('Kamar tersewa ' + terjual + ', tidak bisa merubah dibawah ' + terjual);
+                $('.simpan').prop('disabled', 'disabled');
+                swal({
+                    icon: 'warning',
+                    text: 'Kamar tersewa ' + terjual + ', tidak bisa merubah dibawah ' + terjual
+                })
+            } else {
+                $('.simpan').removeAttr('disabled');
+                $('.terjual').html('');
+            }
+        })
+        <?php
+        if ($kamar[0]['status'] == "VALIDASI") {
+        ?>
+            swal({
+                title: 'kamar sedang proses validasi oleh tim',
+                text: 'Data kamar anda sedang proses validasi, sehingga anda tidak dapat melakukan perubahan',
+                icon: 'warning'
+            })
+            $('#deskripsi').summernote('disable');
+            $('#edit-form :input').prop('disabled', true);
+        <?php
+        } else if ($kamar[0]['status'] == 'DITOLAK') {
+        ?>
+            swal({
+                title: 'kamar ditolak oleh tim',
+                text: 'kamar anda ditolak, silahkan ajukan kamar lagi dengan mengedit terlebih dahulu',
+                icon: 'error'
+            })
+
+        <?php
+        }
+        ?>
         <?php if (isset($_SESSION['response']) && $_SESSION['response'] !== '') : ?>
             swal({
                 title: "<?php echo $_SESSION['response']['status']; ?>",
                 text: "<?php echo $_SESSION['response']['message']; ?>",
                 icon: "<?php echo $_SESSION['response']['status']; ?>"
             });
-        <?php endif; ?>
+        <?php unset($_SESSION['response']);
+        endif; ?>
 
-        // set fasilitas
+        // set fasilitas umum
         var fasilitas = new Array();
         var f = 0;
         <?php
-        $faSet = explode(',', $kamar[0]['uid_durasi']);
+        $faSet = explode(',', $kamar[0]['uid_fasilitas']);
         $fa = 0;
         if (!empty($faSet[0])) {
             while ($fa < count($faSet)) {
@@ -218,8 +372,62 @@
                 $fa++;
             }
             ?>
-            $('#fasilitas').val(fasilitas);
-            $('#fasilitas').trigger('change');
+            $('#f_umum').val(fasilitas);
+            $('#f_umum').trigger('change');
+        <?php
+        } else {
+        }
+        ?>
+        <?php
+        $faSet = explode(',', $kamar[0]['uid_fasilitas']);
+        $fa = 0;
+        if (!empty($faSet[0])) {
+            while ($fa < count($faSet)) {
+        ?>
+                fasilitas[f] = <?= $faSet[$fa] ?>;
+                f++;
+            <?php
+                $fa++;
+            }
+            ?>
+            $('#f_kamar').val(fasilitas);
+            $('#f_kamar').trigger('change');
+        <?php
+        } else {
+        }
+        ?>
+        <?php
+        $faSet = explode(',', $kamar[0]['uid_fasilitas']);
+        $fa = 0;
+        if (!empty($faSet[0])) {
+            while ($fa < count($faSet)) {
+        ?>
+                fasilitas[f] = <?= $faSet[$fa] ?>;
+                f++;
+            <?php
+                $fa++;
+            }
+            ?>
+            $('#f_kamar_mandi').val(fasilitas);
+            $('#f_kamar_mandi').trigger('change');
+        <?php
+        } else {
+        }
+        ?>
+        <?php
+        $faSet = explode(',', $kamar[0]['uid_fasilitas']);
+        $fa = 0;
+        if (!empty($faSet[0])) {
+            while ($fa < count($faSet)) {
+        ?>
+                fasilitas[f] = <?= $faSet[$fa] ?>;
+                f++;
+            <?php
+                $fa++;
+            }
+            ?>
+            $('#f_parkiran').val(fasilitas);
+            $('#f_parkiran').trigger('change');
         <?php
         } else {
         }
@@ -268,6 +476,53 @@
         } else {
         }
         ?>
+
+        $('#edit-form').submit(function(e) {
+            e.preventDefault();
+            form = $(this);
+            var status = $('#status_hide').val();
+            if (status == 1) {
+                swal({
+                        title: "Apakah anda yakin?",
+                        text: "Kamar berstatus penghuni!, jika anda edit status penghuni, maka data transaksi penghuni akan berubah statusnya selesai",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    })
+                    .then((willUpdate) => {
+                        if (willUpdate) {
+                            $.ajax({
+                                url: "<?= base_url('juragan/kamar/update') ?>",
+                                type: "POST",
+                                dataType: "JSON",
+                                data: new FormData(this),
+                                processData: false,
+                                contentType: false,
+                                cache: false,
+                                async: false,
+                                success: function(data) {
+                                    location.reload();
+                                }
+                            })
+                        } else {}
+                    });
+            } else {
+                $.ajax({
+                    url: "<?= base_url('juragan/kamar/update') ?>",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    async: false,
+                    success: function(data) {
+                        location.reload();
+                    }
+                })
+            }
+        })
+
         // deskripsi kamar
         $('#deskripsi').summernote({
             height: 300,
@@ -279,11 +534,11 @@
         var app = {
             show: function() {
                 $.ajax({
-                    url: "<?= base_url('api/provinsi') ?>",
+                    url: "<?= base_url('assets/wilayah/provinces.json') ?>",
                     method: "GET",
                     success: function(data) {
                         var html = '';
-                        var provinsi = JSON.parse(data);
+                        var provinsi = data;
                         for (var i = 0; i < provinsi.length; i++) {
                             if ("<?= $kamar[0]['provinsi'] ?>" === provinsi[i].name) {
                                 html += '<option value="' + provinsi[i].name + '" kota-id="' + provinsi[i].id + '" selected>' + provinsi[i].name + '</option>';
@@ -300,11 +555,11 @@
                 var provinsi_id = $(this);
                 var kotaId = $('option:selected', this).attr('kota-id');
                 $.ajax({
-                    url: "<?= base_url('api/kabupaten/') ?>" + kotaId,
+                    url: "<?= base_url('assets/wilayah/regencies/') ?>" + kotaId + '.json',
                     method: "GET",
                     success: function(data) {
                         var html = '';
-                        var kabupaten = JSON.parse(data);
+                        var kabupaten = data;
                         for (var i = 0; i < kabupaten.length; i++) {
                             html += '<option value="' + kabupaten[i].name + '">' + kabupaten[i].name + '</option>';
                         }
@@ -333,18 +588,26 @@
                 })
             }
         };
-        app.show();
         window.addEventListener('load', function() {
             var eles = document.getElementById('provinsi').selectedOptions;
-            prov_id = eles[0].attributes;
-            app.replace(prov_id[1].value);
+            prov_id = eles[0].attributes[1].value;
+            console.log(prov_id)
+            app.replace(prov_id);
         })
+        app.show();
         $(document).on("change", "#provinsi", app.tampil);
 
         gambar();
         response();
-        $('#maps-frame iframe')[0].attributes[1].textContent = "100%";
-        $('#maps-frame iframe')[0].attributes[2].textContent = "300px";
+        var frame = $('#maps-frame iframe').length;
+        if (frame != 0) {
+            $('#maps-frame iframe')[0].attributes[1].textContent = "100%";
+            $('#maps-frame iframe')[0].attributes[2].textContent = "300px";
+        } else {
+            $('#maps').on('change', function() {
+                $('.maps-frame').html($(this).val());
+            })
+        }
     })
 
     function response() {
@@ -355,6 +618,8 @@
                 text: "data berhasil di update!",
             });
         <?php
+        } else {
+            $this->session->unset_userdata('status');
         }
         ?>
     }
@@ -448,7 +713,7 @@
             .then((willDelete) => {
                 if (willDelete) {
                     $.ajax({
-                        url: '<?= base_url('admin/kamar/delete') ?>',
+                        url: '<?= base_url('juragan/kamar/delete') ?>',
                         type: 'POST',
                         dataType: 'JSON',
                         data: {
@@ -460,12 +725,12 @@
                                 swal(response['message'], {
                                     icon: response['status'],
                                 });
-                                window.location.replace('<?= base_url('admin/kamar/semua') ?>');
+                                window.location.replace('<?= base_url('juragan/kamar') ?>');
                             } else {
                                 swal(response['message'], {
                                     icon: response['status'],
                                 });
-                                window.location.replace('<?= base_url('admin/kamar/semua') ?>');
+                                window.location.replace('<?= base_url('juragan/kamar') ?>');
                             }
                         }
                     })

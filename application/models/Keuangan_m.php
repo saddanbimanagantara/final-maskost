@@ -51,11 +51,12 @@ class keuangan_m extends CI_Model
 
     public function getSaldoByMonth($month, $uid_member)
     {
+        $tahun = ($this->input->post('tahun') != "") ? $this->input->post('tahun') : date('Y');
         $this->db->select_sum('saldo_masuk');
         $this->db->select_sum('saldo_withdraw');
         $this->db->from('keuangan');
         $this->db->where('MONTH(date_updated)', $month);
-        $this->db->where('YEAR(date_updated)', date("Y"));
+        $this->db->where('YEAR(date_updated)', $tahun);
         $this->db->where('uid_member', $uid_member);
         $this->db->where('status', 'SETTLEMENT');
         return $this->db->get()->row_array();
@@ -70,37 +71,6 @@ class keuangan_m extends CI_Model
     {
         $this->db->order_by('date_updated', 'DESC');
         return $this->db->get_where('keuangan', array('uid_member' => $uid_member))->result_array();
-    }
-
-    public function getBukuKeuangan($uid_member, $uid_buku_keuangan)
-    {
-        if ($uid_buku_keuangan) {
-            $this->db->where('uid_buku_keuangan', $uid_buku_keuangan);
-        }
-        $this->db->where('uid_member', $uid_member);
-        return $this->db->get('buku_keuangan')->result_array();
-    }
-
-    public function getBukuKeuanganWithdraw($uid_member)
-    {
-        $this->db->select_sum('saldo_withdraw');
-        $this->db->where('uid_member', $uid_member);
-        $this->db->where('status', 'SETTLEMENT');
-        return $this->db->get('keuangan')->row_array();
-    }
-
-    public function getBukuKeuanganOffline($uid_member, $keterangan)
-    {
-        $this->db->select_sum('nominal');
-        $this->db->where('uid_member', $uid_member);
-        $this->db->where('keterangan', $keterangan);
-        return $this->db->get('buku_keuangan')->row_array();
-    }
-
-    public function bukuTambah($data)
-    {
-        $this->db->insert('buku_keuangan', $data);
-        return ($this->db->affected_rows() >= 1) ? TRUE : FALSE;
     }
 
     public function insertKeuangan($uid_member, $uid_transaksi, $saldo, $status, $keterangan, $deskripsi, $nomor_rekening)
@@ -139,7 +109,7 @@ class keuangan_m extends CI_Model
         $this->db->set('status', $data['status']);
         $this->db->set('date_updated', $data['date_updated']);
         $this->db->where('uid_transaksi', $uid_transaksi);
-        $this->db->update('keuangan');
+        return $this->db->update('keuangan');
     }
 
     private function _getSaldoMember($uid_member)
@@ -199,5 +169,90 @@ class keuangan_m extends CI_Model
         $this->db->from('keuangan');
         $this->db->where('saldo_withdraw >', 0);
         return $this->db->get()->result_array();
+    }
+
+    // buku keuangan
+    public function getChartBuku($uid_member)
+    {
+        $data = array(
+            'januari'   => $this->getSaldoByMonthBuku(1, $uid_member),
+            'februari'  => $this->getSaldoByMonthBuku(2, $uid_member),
+            'maret'     => $this->getSaldoByMonthBuku(3, $uid_member),
+            'april'     => $this->getSaldoByMonthBuku(4, $uid_member),
+            'mei'       => $this->getSaldoByMonthBuku(5, $uid_member),
+            'juni'      => $this->getSaldoByMonthBuku(6, $uid_member),
+            'juli'      => $this->getSaldoByMonthBuku(7, $uid_member),
+            'agustus'   => $this->getSaldoByMonthBuku(8, $uid_member),
+            'september' => $this->getSaldoByMonthBuku(9, $uid_member),
+            'oktober'   => $this->getSaldoByMonthBuku(10, $uid_member),
+            'november'  => $this->getSaldoByMonthBuku(11, $uid_member),
+            'desember'  => $this->getSaldoByMonthBuku(12, $uid_member),
+        );
+        return $data;
+    }
+
+    public function getSaldoByMonthBuku($month, $uid_member)
+    {
+        $tahun = ($this->input->post('tahun') != "") ? $this->input->post('tahun') : date('Y');
+        $this->db->select('sum(CASE WHEN keterangan="in" THEN nominal ELSE 0 END) AS saldo_masuk, SUM(CASE WHEN keterangan="out" THEN nominal ELSE 0 END) AS saldo_withdraw');
+        $this->db->from('buku_keuangan');
+        $this->db->where('MONTH(date)', $month);
+        $this->db->where('YEAR(date)', $tahun);
+        $this->db->where('uid_member', $uid_member);
+        return $this->db->get()->row_array();
+    }
+
+    public function getBukuKeuangan($uid_member, $uid_buku_keuangan)
+    {
+        $this->db->where('uid_member', $uid_member);
+        $this->db->order_by('date', 'desc');
+        if ($uid_buku_keuangan) {
+            $this->db->where('uid_buku_keuangan', $uid_buku_keuangan);
+            return $this->db->get('buku_keuangan')->result_array();
+        } else {
+            return $this->db->get('buku_keuangan')->result_array();
+        }
+    }
+
+    public function getBukuKeuanganWithdraw($uid_member)
+    {
+        $this->db->select_sum('saldo_withdraw');
+        $this->db->where('uid_member', $uid_member);
+        $this->db->where('status', 'SETTLEMENT');
+        return $this->db->get('keuangan')->row_array();
+    }
+
+    public function getBukuKeuanganOffline($uid_member, $keterangan)
+    {
+        $this->db->select_sum('nominal');
+        $this->db->where('uid_member', $uid_member);
+        $this->db->where('keterangan', $keterangan);
+        return $this->db->get('buku_keuangan')->row_array();
+    }
+
+    public function bukuTambah($data)
+    {
+        $this->db->insert('buku_keuangan', $data);
+        return ($this->db->affected_rows() >= 1) ? TRUE : FALSE;
+    }
+
+    public function bukuEdit($data, $uid_buku_keuangan)
+    {
+        $this->db->where('uid_buku_keuangan', $uid_buku_keuangan);
+        $this->db->update('buku_keuangan', $data);
+        return ($this->db->affected_rows() >= 1) ? TRUE : FALSE;
+    }
+
+    public function tambahBukuWD($nominal, $uid_member)
+    {
+        $data = array(
+            'uid_buku_keuangan' => '',
+            'uid_member'        => $uid_member,
+            'nominal'           => $nominal,
+            'keterangan'        => 'in',
+            'deskripsi'         => 'Pembayaran withdraw',
+            'date'              => date('Y-m-d H:i:s')
+        );
+        $this->db->insert('buku_keuangan', $data);
     }
 }

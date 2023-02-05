@@ -35,7 +35,7 @@ class Administrator extends CI_Controller
             'title'             => 'Master data user administrator',
             'user'              => $this->user_log,
             'uid_user'          => $this->user_log['member_id'],
-            'administrator'     => $this->user->getUser(null, 'administrator')
+            'administrator'     => $this->member->getMember('admin', null)
         );
         $this->load->view('admin/user/administrator', $data);
     }
@@ -130,7 +130,7 @@ class Administrator extends CI_Controller
             'nama'              => $_POST['nama'],
             'status'            => $_POST['status'],
             'level'             => $level,
-            'image'             => uploadVerification('image', $_POST['imageHidden'], $_POST['username'], $pathImage),
+            'image'             => uploadVerification('image', $_POST['imageHidden'], $_POST['username'], $pathImage, $action),
             'date_created'      => $date_created,
             'date_updated'      => $date_updated
         );

@@ -1,4 +1,3 @@
-<script src="http://localhost/sk-kost/assets/modules/sweetalert/sweetalert.min.js"></script>
 <?php
 if ($this->session->flashdata('notifikasi') != "") {
     if ($this->session->flashdata('notifikasi') === "pendaftaran_berhasil") {
@@ -26,6 +25,16 @@ if ($this->session->flashdata('notifikasi') != "") {
     } else if ($this->session->flashdata('notifikasi') === "sendContact_berhasil") {
         echo '<script>swal("Contact berhasil!", "Pesan berhasil dikirim ke maskost", "success");</script>';
     } else if ($this->session->flashdata('notifikasi') === "sendContact_gagal") {
-        echo '<script>swal("Contact gagal!", "WithPesan gagal dikirim ke maskost", "error");</script>';
+        echo '<script>swal("Contact gagal!", "Pesan gagal dikirim ke maskost", "error");</script>';
+    } else if ($this->session->flashdata('notifikasi') === "forgetpasswordsend_success") {
+        echo '<script>swal("Reset berhasil!", "Silahkan cek email untuk reset password", "success");</script>';
+    } else if ($this->session->flashdata('notifikasi' === "forgetpasswordsend_error")) {
+        echo '<script>swal("Reset gagal!", "Kesalahan sistem", "error");</script>';
+    } else if ($this->session->flashdata('notifikasi' === "forgetpassword_success")) {
+        echo '<script>swal("Berhasil!", "Ganti password berhasil diganti", "success");</script>';
+    } else if ($this->session->flashdata('notifikasi' === "forgetpassword_error")) {
+        echo '<script>swal("Gagal!", "Kesalahan sistem", "error");</script>';
+    } else if ($this->session->flashdata('notifikasi' === "token_or_email_invalid")) {
+        echo '<script>swal("Gagal!", "Email atau token yang anda gunakan tidak valid", "error");</script>';
     }
 }

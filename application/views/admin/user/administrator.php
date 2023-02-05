@@ -31,16 +31,16 @@
                                     <td class="align-middle"><?= $i++ ?></td>
                                     <td class="align-middle">
                                         <figure class="avatar avatar-lg">
-                                            <img src="<?= base_url('assets/img/profile/') . $administrator['image'] ?>">
+                                            <img src="<?= base_url('assets/img/profile/admin/') . $administrator['image'] ?>">
                                         </figure>
                                     </td>
                                     <td class="align-middle"><?= $administrator['email'] ?></td>
                                     <td class="align-middle"><?= $administrator['username'] ?></td>
-                                    <td class="align-middle"><?= $administrator['nama'] ?></td>
+                                    <td class="align-middle"><?= $administrator['fnama'] ?></td>
                                     <td class="align-middle"><?= $administrator['status'] ?></td>
                                     <td class="align-middle text-center">
-                                        <button class="btn btn-icon btn-info mb-1" onclick="edit(this)" uid_user="<?= $administrator['uid_user'] ?>"><i class="far fa-edit"></i></button>
-                                        <button class="btn btn-icon btn-danger mb-1" onclick="hapus(this)" uid_user="<?= $administrator['uid_user'] ?>"><i class="fas fa-times"></i></button>
+                                        <button class="btn btn-icon btn-info mb-1" onclick="edit(this)" uid_user="<?= $administrator['uid_member'] ?>"><i class="far fa-edit"></i></button>
+                                        <button class="btn btn-icon btn-danger mb-1" onclick="hapus(this)" uid_user="<?= $administrator['uid_member'] ?>"><i class="fas fa-times"></i></button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

@@ -44,20 +44,26 @@ class Snap extends CI_Controller
 		$uid_member = $this->input->post('uid_member');
 		// data pembayaran sewa
 		$nama_kost = $this->input->post('nama_kost');
-		$durasi = $this->input->post('durasi');
+		$durasi = $this->input->post('uid_durasi');
 		$tanggal_masuk = $this->input->post('tanggal_masuk');
-		$jumlah_pembayaran = preg_replace('/\D/', '', $this->input->post('jumlah_pembayaran'));
-
+		// cek nominal
+		$this->db->select('harga, diskon');
+		$this->db->where('uid_kamar', $uid_kamar);
+		$this->db->from('kamar_kost');
+		$kamar = $this->db->get()->row_array();
+		$harga = $kamar['harga'] * $durasi;
+		$diskon = $harga * ($kamar['diskon'] / 100);
+		$hargaTotal = $harga - $diskon;
 		// Required
 		$transaction_details = array(
 			'order_id' => "TX-" . rand(),
-			'gross_amount' => $jumlah_pembayaran, // no decimal allowed for creditcard
+			'gross_amount' => $hargaTotal, // no decimal allowed for creditcard
 		);
 
 		// Optional
 		$item1_details = array(
 			'id' 			=> $uid_kamar,
-			'price' 		=> $jumlah_pembayaran,
+			'price' 		=> $hargaTotal,
 			'quantity' 		=> 1,
 			'name' 			=> $nama_kost,
 			'durasi'		=> $durasi,
@@ -103,27 +109,32 @@ class Snap extends CI_Controller
 			'expiry'             => $custom_expiry
 		);
 
+
 		error_log(json_encode($transaction_data));
 		$snapToken = $this->midtrans->getSnapToken($transaction_data);
 		error_log($snapToken);
 		echo $snapToken;
 	}
 
-	public function finish()
+	public function saveData()
 	{
 		// payment type code {QRIS, cstore(alfa group), cstpre(indomaret), GO-PAY, bank_transfer}
+		date_default_timezone_set('Asia/jakarta');
 		$result = json_decode($this->input->post('result_data'), TRUE);
 		$snapToken = $this->input->post('token');
 		$uid_kamar = $this->input->post('uid_kamar');
 		$uid_member = $this->input->post('uid_member');
-		$durasi = $this->input->post('durasi');
+		$durasi = $this->input->post('uid_durasi');
 		$jenis = $this->input->post('jenis');
 		$tanggal_masuk = $this->input->post('tanggal_masuk');
 		$tanggal_keluar = '';
-		if ($jenis === "baru") {
+		if ($jenis == "baru") {
 			$tanggal_keluar = date('Y-m-d', strtotime('+' . $durasi . ' month', strtotime($tanggal_masuk)));
-		} else if ($jenis === "perpanjang") {
+			$uid_perpanjang = '';
+		} else if ($jenis == "perpanjang") {
 			$tanggal_keluar = date('Y-m-d', strtotime('+' . $durasi . ' month', strtotime($this->input->post('tanggal_keluar'))));
+			$tanggal_masuk = $this->input->post('tanggal_keluar');
+			$uid_perpanjang = $this->input->post('uid_perpanjang');
 		}
 		// get uid pemilik kamar
 		$kamar = $this->db->get_where('kamar_kost', array('uid_kamar' => $uid_kamar))->row_array();
@@ -132,7 +143,7 @@ class Snap extends CI_Controller
 		$profit = $profit['gross_amount'];
 		switch ($result['status_code']) {
 			case 201:
-				$datapembayaran = $this->_datapembayaran($result, $snapToken, $jenis);
+				$datapembayaran = $this->_datapembayaran($result, $snapToken, $jenis, $uid_perpanjang);
 				$datasewa = array(
 					'uid_transaksi'		=> $result['order_id'],
 					'uid_member'		=> $uid_member,
@@ -142,28 +153,22 @@ class Snap extends CI_Controller
 					'tanggal_keluar'	=> $tanggal_keluar,
 					'status'			=> 'booking'
 				);
-				$data = array(
-					'kamar'		=> $kamar,
-					'datasewa'	=> $datasewa
-				);
 				// section transaksi
 				$this->db->insert('transaksi', $datapembayaran);
 				$this->db->insert('transaksi_detail', $datasewa);
+
 				// section kamar
-				$this->kamar_m->updateKamarBookingOrHuni($uid_kamar, $jenis);
+				// $this->kamar_m->updateKamarBookingOrHuni($uid_kamar, $jenis);
 				// section keuangan juragan
 				$this->keuangan_m->insertKeuangan($kamar['uid_member'], $result['order_id'], ($result['gross_amount'] - $profit), "PENDING", "SALDO_MASUK", "Pembayaran Kost", "");
-				$viewData = array(
-					'title'				=> "Pembayaran " . $result['order_id'],
-					'status'			=> 201,
-					'status_message'	=> "Pembayaran pending, Anda belum melakukan pembayaran atau sistem sedang gangguan, silahkan cek di dashboard pembayaran dibawah."
+				$data = array(
+					'order_id' => $result['order_id'],
+					'status' => 201
 				);
-				$this->load->view('_templatepublic/header', $viewData);
-				$this->load->view('finish', $viewData);
-				$this->load->view('_templatepublic/footer', $viewData);
+				echo json_encode($data);
 				break;
 			case 200:
-				$datapembayaran = $this->_datapembayaran($result, $snapToken, $jenis);
+				$datapembayaran = $this->_datapembayaran($result, $snapToken, $jenis, $uid_perpanjang);
 				$datasewa = array(
 					'uid_transaksi'		=> $result['order_id'],
 					'uid_member'		=> $uid_member,
@@ -176,24 +181,35 @@ class Snap extends CI_Controller
 				// section transaksi
 				$this->db->insert('transaksi', $datapembayaran);
 				$this->db->insert('transaksi_detail', $datasewa);
+
 				// section kamar
-				$this->kamar_m->updateKamarBookingOrHuni($uid_kamar, $jenis);
+				// $this->kamar_m->updateKamarBookingOrHuni($uid_kamar, $jenis);
 				// section keuangan juragan
 				$this->keuangan_m->insertKeuangan($kamar['uid_member'], $result['order_id'], ($result['gross_amount'] - $profit), "SETTLEMENT", "SALDO_MASUK", "Pembayaran Kost", "");
-				$this->keuangan_m->updateSaldoMember($result['gross_amount'], $kamar['uid_member'], "masuk");
 				// section profit perusahaan
 				$this->keuangan_m->profit($profit);
-				$viewData = array(
-					'title'				=> "Pembayaran " . $result['order_id'],
-					'status'			=> 200,
-					'status_message'	=> "Pembayaran berhasil, silahkan cek di dashboard pembayaran dibawah."
+				$data = array(
+					'order_id' => $result['order_id'],
+					'status' => 200
 				);
-				$this->load->view('_templatepublic/header', $viewData);
-				$this->load->view('finish', $viewData);
-				$this->load->view('_templatepublic/footer', $viewData);
+				echo json_encode($data);
 				break;
 			default:
 		}
+	}
+
+	public function finish()
+	{
+		$status = $_GET['status'];
+		$order_id = $_GET['order_id'];
+		$viewData = array(
+			'title'				=> "Pembayaran " . $order_id,
+			'status'			=> $status,
+			'status_message'	=> "Pembayaran " . ($status = 200) ? "Berhasil" : "Pending" . ", silahkan cek di dashboard pembayaran dibawah."
+		);
+		$this->load->view('_templatepublic/header', $viewData);
+		$this->load->view('finish', $viewData);
+		$this->load->view('_templatepublic/footer', $viewData);
 	}
 
 	public function pembayaran()
@@ -218,7 +234,7 @@ class Snap extends CI_Controller
 				'waktu_transaksi'	=> $date,
 				'status_code'		=> 200
 			);
-			$transaksi = $this->transaksi_m->updateTransaksi($transaksi, $uid_transaksi);
+			$transaksi = $this->transaksi_m->updateTransaksiPembayaran($transaksi, $uid_transaksi);
 			// data transaksi detail
 			$transaksi_detail = array(
 				'status'			=> 'huni'
@@ -236,13 +252,14 @@ class Snap extends CI_Controller
 		echo json_encode("error");
 	}
 
-	private function _datapembayaran($result, $snapToken, $jenis)
+	private function _datapembayaran($result, $snapToken, $jenis, $uid_perpanjang)
 	{
 		$minute = 500;
 		$time = new DateTime($result['transaction_time']);
 		$time->add(new DateInterval('PT' . $minute . 'M'));
 		$stamp = $time->format('Y-m-d H:i');
 		$data = array();
+
 		if ($result['payment_type'] === "bank_transfer") {
 			$data = array(
 				'uid_transaksi' 	=> $result['order_id'],
@@ -333,6 +350,9 @@ class Snap extends CI_Controller
 				'status_code'		=> $result['status_code'],
 				'snapToken'			=> $snapToken
 			);
+		}
+		if ($jenis == 'perpanjang') {
+			$data['uid_perpanjang'] = $uid_perpanjang;
 		}
 		return $data;
 	}

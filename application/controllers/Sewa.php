@@ -13,7 +13,7 @@ class Sewa extends CI_Controller
 
     public function index()
     {
-        $uid_kamar = $this->input->post('uid_kamar');
+        $uid_kamar = $_GET['kamar'];
         $data = array(
             'title'     => "Form Pengajuan Sewa",
             'member'    => $this->member->getMember($this->datasess['otoritas'], $this->datasess['uid_member']),

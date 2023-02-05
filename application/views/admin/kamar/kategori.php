@@ -149,6 +149,11 @@
                     }).then(function() {
                         window.location.reload();
                     });
+                    swal(response['message'], {
+                        icon: response['status'],
+                    }).then(() => {
+                        location.reload()
+                    });
                 }
             }
         })

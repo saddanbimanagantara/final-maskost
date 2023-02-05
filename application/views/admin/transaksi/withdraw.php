@@ -6,7 +6,7 @@
             <h5>Daftar Withdraw Juragan</h5>
         </div>
         <div class="card-body">
-            <table class="table table-responsive" id="withdraw">
+            <table class="table table-striped" id="withdraw">
                 <thead>
                     <th>#</th>
                     <th>Nama juragan</th>
@@ -32,7 +32,7 @@
                             <td><?= $withdraw['date_updated'] ?></td>
                             <?php
                             if ($withdraw['status'] === 'SETTLEMENT') {
-                                echo '<td><span class="badge badge-success">SETTLEMENT</span></td>';
+                                echo '<td><span class="badge badge-success">APPROVE</span></td>';
                                 echo '<td>
                                         <button class="proses btn btn-sm btn-success" id="proses" uid_keuangan="' . $withdraw['uid_keuangan'] . '">Detail</button>
                                     </td>';
@@ -42,7 +42,7 @@
                                         <button class="proses btn btn-sm btn-primary" id="proses" uid_keuangan="' . $withdraw['uid_keuangan'] . '">Proses Withdraw</button>
                                     </td>';
                             } else if ($withdraw['status'] === 'CANCEL') {
-                                echo '<td><span class="badge badge-danger">BATAL</span></td>';
+                                echo '<td><span class="badge badge-danger">CANCEL</span></td>';
                                 echo '<td>
                                         <button class="proses btn btn-sm btn-danger" id="proses" uid_keuangan="' . $withdraw['uid_keuangan'] . '" disabled>Dibatalkan</button>
                                     </td>';

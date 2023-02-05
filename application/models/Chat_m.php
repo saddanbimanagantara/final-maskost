@@ -2,6 +2,32 @@
 
 class Chat_m extends CI_Model
 {
+    // section test
+    public function getChat($uid_penerima)
+    {
+        'max(uid_chat) as uid_chat, uid_pengirim, uid_penerima, SUBSTR(MAX(CONCAT(LPAD(uid_chat, 50), message)), 51) as message, max(time) as time';
+        $this->db->select('chat.*,member.fnama, member.uid_member, member.lnama, member.otoritas, member.email, member.image, kamar_kost.nama');
+        $this->db->from('chat');
+        $this->db->join('member', 'member.uid_member=chat.uid_pengirim');
+        $this->db->join('transaksi_detail', 'transaksi_detail.uid_member=chat.uid_pengirim', 'left');
+        $this->db->join('kamar_kost', 'kamar_kost.uid_kamar=transaksi_detail.uid_kamar', 'left');
+        if (isset($_POST['search'])) {
+            $this->db->group_start();
+            $this->db->where('member.fnama', $_POST['search'], 'both');
+            $this->db->or_where('member.lnama', $_POST['search'], 'both');
+            $this->db->group_end();
+        } else if (isset($_POST['penghuni'])) {
+            $this->db->group_start();
+            $this->db->where('transaksi_detail.uid_member is NOT NULL', null, 'both');
+            $this->db->group_end();
+        }
+        $this->db->where('uid_penerima', $uid_penerima);
+        $this->db->or_where('uid_pengirim', $uid_penerima);
+        $this->db->group_by('uid_pengirim');
+        $this->db->order_by('time', 'DESC');
+        return $this->db->get()->result_array();
+    }
+
     // section juragan
     public function getPengirim($uid_member)
     {

@@ -22,6 +22,14 @@ class Page extends CI_Controller
         $this->load->view('_templatepublic/footer', $data);
     }
 
+    public function tutorialMaps()
+    {
+        $data = array('title' => 'Tutorial Memasukan Email');
+        $this->load->view('_templatepublic/header', $data);
+        $this->load->view('dist/maps', $data);
+        $this->load->view('_templatepublic/footer', $data);
+    }
+
     public function contactProccess()
     {
         $name = $this->input->post('name');
@@ -62,5 +70,11 @@ class Page extends CI_Controller
             echo $this->email->print_debugger();
             die;
         }
+    }
+
+    public function error()
+    {
+        $data['title'] = '404 Not Found';
+        $this->load->view('dist/errors-404', $data);
     }
 }

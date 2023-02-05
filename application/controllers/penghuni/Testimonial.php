@@ -33,25 +33,18 @@ class Testimonial extends CI_Controller
             'title'         => "Testimonial",
             'user'          => $this->user_log,
             'transaksi'     => $transaksi,
-            'testimonial'   => $this->user->getTestimonial($this->user_log['member_id'], $transaksi['uid_kamar'])
         );
         $this->load->view('penghuni/testimonial', $data);
     }
 
-    public function insert()
+    public function kirimtesti($action)
     {
-        $check = $this->user->getTestimonial($this->user_log['member_id'], $this->input->post('uid_kamar'), $this->input->post('uid_transaksi'));
-        if ($check != null) {
-            $data = array(
-                'uid_transaksi'     => $this->input->post('uid_transaksi'),
-                'uid_kamar'         => $this->input->post('uid_kamar'),
-                'uid_member'        => $this->input->post('uid_member'),
-                'anonim_status'     => $this->input->post('anonim_status'),
-                'bintang'           => $this->input->post('bintang'),
-                'pesan'             => $this->input->post('pesan')
-            );
-            $this->db->where('uid_transaksi', $check['uid_transaksi']);
-            $this->db->update('testimonial', $data);
+        if ($action == 'edit') {
+            $this->db->set('anonim_status', $this->input->post('anonim_status'));
+            $this->db->set('bintang', $this->input->post('bintang'));
+            $this->db->set('pesan', $this->input->post('pesan'));
+            $this->db->where('uid_testimonial', $this->input->post('uid_testimonial'));
+            $this->db->update('testimonial');
             redirect('penghuni/testimonial');
         } else {
             $data = array(

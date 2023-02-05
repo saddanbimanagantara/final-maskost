@@ -20,7 +20,8 @@ class Kost extends CI_Controller
                 'fnama'         => $this->user_log['fnama'],
                 'lnama'         => $this->user_log['lnama'],
                 'image'         => $this->user_log['image'],
-                'otoritas'      => $this->user_log['otoritas']
+                'otoritas'      => $this->user_log['otoritas'],
+                'jenis_kelamin' => $this->user_log['jenis_kelamin']
             );
         }
 
@@ -29,11 +30,23 @@ class Kost extends CI_Controller
 
     public function list()
     {
+        $this->load->view('_templatepublic/header');
+        $this->load->view('kost');
+        $this->load->view('_templatepublic/footer');
+    }
+
+    public function jsonKamar($rowno = 0)
+    {
+
         $this->load->library('pagination');
         $jumlah_data = $this->kamar->jumlah_data();
         $config['base_url'] = base_url() . 'kost/list';
         $config['total_rows'] = $jumlah_data;
-        $config['per_page'] = 4;
+        $config['per_page'] = 8;
+        // Row position
+        if ($rowno != 0) {
+            $rowno = ($rowno - 1) * $config['per_page'];
+        }
         // styling pagination
         $config['full_tag_open'] = "<ul class='pagination'>";
         $config['full_tag_close'] = '</ul>';
@@ -55,11 +68,58 @@ class Kost extends CI_Controller
         $config['next_tag_close'] = '</li>';
         $from = $this->uri->segment(3);
         $this->pagination->initialize($config);
-        $data['kamar'] = $this->kamar->get($config['per_page'], $from, null, null);
+        // filtering
+        $postkey = array_keys(@$_POST);
+        $data_fasilitas = $this->kamar->getFasilitas();
+        $data_durasi = $this->kamar->getDurasi();
+        $data_kategori = $this->kamar->getKategori();
+        $filter_fasilitas = array();
+        $filter_durasi = array();
+        $filter_kategori = array();
+        foreach ($postkey as $key => $value) {
+            $uid_fasilitas = str_replace('uid_fasilitas', '', @$postkey[$key]);
+            $uid_durasi = str_replace('uid_durasi', '', @$postkey[$key]);
+            $uid_kategori = str_replace('uid_kategori', '', @$postkey[$key]);
+            foreach ($data_fasilitas as $fasilitas) {
+                $row = array();
+                if ($uid_fasilitas == $fasilitas['uid_fasilitas'])
+                    $row[] = $fasilitas['uid_fasilitas'];
+                $filter_fasilitas[] = $row;
+            }
+            foreach ($data_durasi as $durasi) {
+                $row = array();
+                if ($uid_durasi == $durasi['uid_durasi'])
+                    $row[] = $durasi['uid_durasi'];
+                $filter_durasi[] = $row;
+            }
+            foreach ($data_kategori as $kategori) {
+                $row = array();
+                if ($uid_kategori == $kategori['uid_kategori'])
+                    $row[] = $kategori['uid_kategori'];
+                $filter_kategori[] = $row;
+            }
+        }
+        $filter = array(
+            'fasilitas' => array_filter($filter_fasilitas),
+            'durasi'    => array_filter($filter_durasi),
+            'kategori'  => array_filter($filter_kategori)
+        );
+        // data send
+        $data['pagination'] = $this->pagination->create_links();
+        $data['kamar'] = $this->kamar->get($config['per_page'], $from, $filter);
         $data['fasilitaskamar'] = $this->kamar->getFasilitas();
-        $this->load->view('_templatepublic/header');
-        $this->load->view('kost', $data);
-        $this->load->view('_templatepublic/footer');
+        $data['filter'] = $filter;
+        $data['row'] = $rowno;
+
+        echo json_encode($data);
+    }
+
+    public function test()
+    {
+        $this->db->select('kamar_kost.uid_kamar, (SELECT COUNT(transaksi.uid_transaksi) FROM transaksi JOIN transaksi_detail ON transaksi.uid_transaksi=transaksi_detail.uid_transaksi WHERE transaksi.jenis="baru" AND transaksi_detail.status="huni" AND transaksi_detail.uid_kamar=kamar_kost.uid_kamar) as jumlah', FALSE);
+        $this->db->from('kamar_kost');
+        $data = $this->db->get()->result_array();
+        echo json_encode($data);
     }
 
     public function cari()
@@ -93,13 +153,11 @@ class Kost extends CI_Controller
         $from = $this->uri->segment(3);
         $this->pagination->initialize($config);
         $data['kamar'] = $this->kamar->get($config['per_page'], $from, $kategori, $kota);
-        $data['fasilitaskamar'] = $this->kamar->getFasilitas();
+        $data['fasilitaskamar'] = $this->kamar->getFasilitas(null, null);
         $this->load->view('_templatepublic/header');
         $this->load->view('kost', $data);
         $this->load->view('_templatepublic/footer');
     }
-
-
 
     public function getKamar()
     {
@@ -121,14 +179,32 @@ class Kost extends CI_Controller
         $uid_kamar = $this->getUidkamar($url_title);
         $data['kamar'] = $this->kamar->getDetail($url_title);
         $data['durasikamar'] = $this->kamar->getDurasi();
-        $data['fasilitaskamar'] = $this->kamar->getFasilitas();
+        $data['f_umum'] = $this->kamar->getFasilitas('umum');
+        $data['f_kamar'] = $this->kamar->getFasilitas('kamar');
+        $data['f_kamar_mandi'] = $this->kamar->getFasilitas('kamar mandi');
+        $data['f_parkiran'] = $this->kamar->getFasilitas('parkiran');
         $data['review'] = $this->kamar->getReview($uid_kamar['uid_kamar']);
         $data['member'] = $this->user_log;
         if ($this->session->has_userdata('member')) {
-            $data['tx'] = $this->transaksi->getStatus($this->uid_member);
+            $data['tx'] = $this->transaksi->getStatus($data['kamar']['uid_kamar']);
         }
+
         $this->load->view('_templatepublic/header');
         $this->load->view('detail', $data);
+        $this->load->view('_templatepublic/footer');
+    }
+
+
+    public function juragan($username)
+    {
+        $juragan = $this->member->getinfo($username);
+        $data = array(
+            'title'    => 'Daftar kamar',
+            'juragan'   => $juragan,
+            'username'  => $username
+        );
+        $this->load->view('_templatepublic/header');
+        $this->load->view('juragan', $data);
         $this->load->view('_templatepublic/footer');
     }
 }

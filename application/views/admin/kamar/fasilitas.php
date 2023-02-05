@@ -18,6 +18,7 @@
                                     <th class="text-center">#</th>
                                     <th>Nama fasilitas</th>
                                     <th>Icon fasilitas</th>
+                                    <th>Tipe fasilitas</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -28,7 +29,8 @@
                                 <tr>
                                     <td><?= $i++ ?></td>
                                     <td><?= $fasilitas['nama'] ?></td>
-                                    <td><?= $fasilitas['icon'] ?></td>
+                                    <td><?= $fasilitas['icon'] ?> ( <i class="<?= $fasilitas['icon'] ?>"></i> )</td>
+                                    <td><?= $fasilitas['tipe'] ?></td>
                                     <td class="text-center">
                                         <button class="btn btn-icon btn-info mb-1" onclick="edit(this)" uid_fasilitas="<?= $fasilitas['uid_fasilitas'] ?>"><i class="far fa-edit"></i></button>
                                         <button class="btn btn-icon btn-danger mb-1" onclick="hapus(this)" uid_fasilitas="<?= $fasilitas['uid_fasilitas'] ?>"><i class="fas fa-times"></i></button>
@@ -64,9 +66,21 @@
                     </div>
                     <div class="form-group">
                         <label for="icon_fasilitas">Icon fasilitas</label>
-                        <input type="text" class="form-control" id="icon" name="icon" required="">
+                        <input type="text" class="form-control" id="icon" name="icon">
                         <div class="invalid-feedback">
                             Oh tidak! Icon fasilitas wajib diisi.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipe_fasilitas">Fasilitas tipe</label>
+                        <select name="tipe" id="tipe" class="form-control">
+                            <option value="UMUM">UMUM</option>
+                            <option value="KAMAR">KAMAR</option>
+                            <option value="KAMAR MANDI">KAMAR MANDI</option>
+                            <option value="PARKIRAN">PARKIRAN</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Oh tidak! Tipe fasilitas wajib diisi.
                         </div>
                     </div>
                 </div>
@@ -90,6 +104,7 @@
             });
         <?php endif; ?>
         $('#data-fasilitas').DataTable();
+
         $('#btn-tambah').on('click', function() {
             $('.modal-title').html('Tambah fasilitas');
             $('#form-data').attr('action', '<?= base_url('admin/kamar/fasilitas/addFasilitas') ?>');
@@ -125,6 +140,7 @@
                 $('#uid_fasilitas').val(response.uid_fasilitas);
                 $('#nama').val(response.nama);
                 $('#icon').val(response.icon);
+                $('#tipe').val(response.tipe);
             }
         })
     }

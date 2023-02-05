@@ -42,15 +42,23 @@ class Dashboard extends CI_Controller
             'saldo_withdraw'          => $this->keuangan->getRekap($this->uid_member, "SETTLEMENT", "saldo_withdraw"),
             'saldo_withdraw_pending'  => $this->keuangan->getRekap($this->uid_member, "PENDING", "saldo_withdraw")
         );
+
+        $wdrekap = array(
+            'saldo_masuk_settlement'    => $this->keuangan->getRekap($this->uid_member, 'SETTLEMENT', "saldo_masuk"),
+            'saldo_withdraw_settlement' => $this->keuangan->getRekap($this->uid_member, 'SETTLEMENT', "saldo_withdraw"),
+            'saldo_withdraw_pending'    => $this->keuangan->getRekap($this->uid_member, 'PENDING', "saldo_withdraw")
+        );
         $data = array(
             'title'             => 'Dashboard juragan',
             'user'              => $this->member->getMember('juragan', $this->uid_member),
-            'jumlahAvailable'   => $this->kamar->count("1", $this->uid_member),
-            'jumlahSold'        => $this->kamar->count("0", $this->uid_member),
+            'jumlahAvailable'   => $this->kamar->count($this->uid_member),
+            'jumlahSold'        => $this->kamar->countTerjual($this->uid_member),
             'jumlah_kamar'      => $this->kamar->jumlahKamar($this->uid_member),
             'riwayat_penghuni'  => $this->transaksi->CountPenghuni($this->uid_member),
-            'transaksi'         => $this->transaksi->getTransaksi(null, $this->uid_member),
-            'rekap'             => $rekap
+            'transaksi'         => $this->transaksi->getTransaksi($this->uid_member),
+            'rekap'             => $rekap,
+            'rekening'          => $this->member->getRekening($this->uid_member),
+            'saldoSaya'         => $wdrekap
         );
         $this->load->view('juragan/index', $data);
     }

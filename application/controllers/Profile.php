@@ -80,11 +80,13 @@ class Profile extends CI_Controller
             );
             echo json_encode($response);
         } else {
-            $response = array(
-                'icon'      => "error",
-                'message'   => "Berhasil update gambar"
-            );
-            echo json_encode($response);
+            $error = array('error' => $this->upload->display_errors(), 'path' => $config['upload_path']);
+            echo json_encode($error);
+            // $response = array(
+            //     'icon'      => "error",
+            //     'message'   => "Gagal update gambar"
+            // );
+            // echo json_encode($response);
         }
     }
 

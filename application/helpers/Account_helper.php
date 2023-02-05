@@ -22,13 +22,13 @@ function uuid_check($uuid, $table, $uid_name)
     return ($checked->num_rows() > 0) ? 0 : $uuid;
 }
 
-function uploadVerification($name, $nameHidden, $filename, $path)
+function uploadVerification($name, $nameHidden, $filename, $path, $action)
 {
     $ci = &get_instance();
-    return ($_FILES[$name]['error'] === 4) ? $nameHidden : uploadImageProfile($name, $nameHidden, $filename, $path);
+    return ($_FILES[$name]['error'] === 4) ? $nameHidden : uploadImageProfile($name, $nameHidden, $filename, $path, $action);
 }
 
-function uploadImageProfile($name, $nameHidden, $filename, $path)
+function uploadImageProfile($name, $nameHidden, $filename, $path, $action)
 {
     $ci = get_instance();
     $ci->load->library('upload');
@@ -42,7 +42,10 @@ function uploadImageProfile($name, $nameHidden, $filename, $path)
     } else {
         $data = array('upload_data' => $ci->upload->data());
         $filapath = $path . $nameHidden;
-        deleteImageProfile($filapath);
+        if ($action == 'add') {
+        } else {
+            deleteImageProfile($filapath);
+        }
         return $data['upload_data']['file_name'];
     }
 }

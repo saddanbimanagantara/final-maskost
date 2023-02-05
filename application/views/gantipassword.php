@@ -2,7 +2,7 @@
 
 <div class="main-content">
     <?php $this->load->view('dist/_partials/notif') ?>
-    <div class="col-5">
+    <div class="col-md-6 col-sm-12">
         <div class="card">
             <div class="card-header">
                 Ganti password

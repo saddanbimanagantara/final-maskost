@@ -45,6 +45,11 @@ class Member_m extends CI_Model
         return $this->db->get()->row_array();
     }
 
+    public function getRekening($uid_member)
+    {
+        return $this->db->get_where('rekening', array('uid_member' => $uid_member))->result_array();
+    }
+
     public function hitungMember($otoritas)
     {
         $this->db->from('member');
@@ -54,10 +59,18 @@ class Member_m extends CI_Model
 
     public function getKamarMember($uid_member)
     {
-        $this->db->select('transaksi_detail.uid_transaksi, kamar_kost.uid_kamar, kamar_kost.uid_member');
+        $this->db->select('transaksi_detail.uid_transaksi, kamar_kost.uid_kamar, kamar_kost.uid_member, kamar_kost.nama');
         $this->db->from('transaksi_detail');
         $this->db->join('kamar_kost', 'transaksi_detail.uid_kamar=kamar_kost.uid_kamar');
         $this->db->where('transaksi_detail.uid_member', $uid_member);
+        return $this->db->get()->row_array();
+    }
+
+    public function getinfo($username)
+    {
+        $this->db->select('member.fnama, member.lnama, member.otoritas, member.image, (SELECT COUNT(kamar_kost.uid_kamar) FROM kamar_kost WHERE kamar_kost.uid_member=member.uid_member) as jumlah_kost,(SELECT SUM(kamar_kost.jumlah_kamar) FROM kamar_kost WHERE kamar_kost.uid_member=member.uid_member) as jumlah_kamar, (SELECT COUNT(transaksi.uid_transaksi) FROM transaksi JOIN transaksi_detail ON transaksi_detail.uid_transaksi=transaksi.uid_transaksi JOIN kamar_kost ON transaksi_detail.uid_kamar=kamar_kost.uid_kamar WHERE transaksi.jenis="baru" AND transaksi_detail.status="huni" AND kamar_kost.uid_member=member.uid_member) AS terjual');
+        $this->db->where('username', $username);
+        $this->db->from('member');
         return $this->db->get()->row_array();
     }
 }

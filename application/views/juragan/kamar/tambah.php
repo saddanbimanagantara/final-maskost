@@ -1,9 +1,4 @@
 <?php $this->load->view('dist/_partials/header'); ?>
-<style type="text/css">
-    #tambah_kamar fieldset:not(:first-of-type) {
-        display: none;
-    }
-</style>
 <div class="main-content">
     <div class="row">
         <div class="col-md-12 col-sm-12">
@@ -12,153 +7,237 @@
                     <h4>Tambah data kamar</h4>
                 </div>
                 <div class="card-body">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <form id="tambah_kamar" novalidate action="<?= base_url('juragan/kamar/save') ?>" method="post" enctype="multipart/form-data">
-                        <fieldset>
-                            <h6 class="mt-3">Nama</h6>
-                            <div class="form-group">
-                                <label for="nama">Nama kamar</label>
-                                <input type="text" class="form-control" id="nama" name="nama" placeholder="Contoh: Kamar 1A Lantai 2 Kost Mawar">
-                            </div>
-                            <input type="button" name="next" class="next btn btn-info" value="selanjutnya" />
-                        </fieldset>
-                        <fieldset>
-                            <h6 class="mt-3"> Harga dan Diskon Kamar</h6>
-                            <div class="form-group">
-                                <label for="harga">Harga</label>
-                                <input class="form-control" type="text" name="harga" id="harga">
-                            </div>
-                            <div class="form-group">
-                                <label for="diskon">Diskon</label>
-                                <input class="form-control" type="text" name="diskon" id="diskon">
-                                <span class="text-danger">Masukan diskon dalam bentuk persen bukan nominal potongan</span>
-                            </div>
-                            <input type="button" name="previous" class="previous btn btn-default" value="sebelumnya" />
-                            <input type="button" name="next" class="next btn btn-info" value="selanjutnya" />
-                        </fieldset>
-                        <fieldset>
-                            <h6 class="mt-3">Fasilitas, Durasi dan Kategori</h6>
-                            <div class="form-group">
-                                <label>Fasilitas</label>
-                                <select class="form-control select2" multiple name="fasilitas[]" id="fasilitas" style="width: 100%">
-                                    <option value="0" default>Pilih Fasilitas</option>
-                                    <?php foreach ($fasilitas as $fasilitas) : ?>
-                                        <option value="<?= $fasilitas['uid_fasilitas'] ?>"><?= $fasilitas['nama'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Durasi</label>
-                                <select class="form-control select2" multiple name="durasi[]" id="durasi" style="width: 100%;">
-                                    <option value="0" default>Pilih durasi</option>
-                                    <?php foreach ($durasi as $durasi) : ?>
-                                        <option value="<?= $durasi['uid_durasi'] ?>"><?= $durasi['durasi'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Kategori kamar</label>
-                                <select class="form-control select2" multiple name="kategori[]" id="kategori" style="width:100%;">
-                                    <?php foreach ($kategori as $kategori) : ?>
-                                        <option value="<?= $kategori['uid_kategori'] ?>"><?= $kategori['nama_kategori'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="luaskamar">Luas kamar</label>
-                                <input type="text" class="form-control luaskamar" name="luaskamar" id="luaskamar" placeholder="3x2 / 3x3 ..." required>
-                            </div>
-                            <input type="text" name="status" id="status" value="1" hidden>
-                            <input type="button" name="previous" class="previous btn btn-default" value="sebelumnya" />
-                            <input type="button" name="next" class="next btn btn-info" value="selanjutnya" />
-                        </fieldset>
-                        <fieldset>
-                            <h6 class="mt-3">Lokasi kamar kost</h6>
-                            <div class="form-group">
-                                <label for="Alamat">Alamat</label>
-                                <input type="text" class="form-control alamat" name="alamat" id="alamat" style="height: 80px;" placeholder="Masukan alamat lengkap" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="Provinsi">Provinsi</label>
-                                <select class="form-control provinsi select2" name="provinsi" id="provinsi" style="width: 100%;" required>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="Kota">Kota</label>
-                                <select class="form-control kota select2" name="kota" id="kota" style="width: 100%;" required>
-                                    <option value="">Pilih Kota/Kabupaten</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="Kota">Lokasi Maps embed</label><br>
-                                <small>Tutorial mengambil embed maps? <a href="">Cara Embed</a></small>
-                                <input type="text" class="form-control maps" id="maps" name="maps" placeholder="Masukan iframe dari embed maps jika ingin menggunakan maps pada lokasi kost anda">
-                                <input type="text" hidden name="hidden_maps" id="hidden_maps">
-                                <small>Maps lokasi kost anda:</small>
-                                <div class="maps-frame" style="height: 250px; width:250px">
-                                </div>
-                            </div>
-                            <input type="button" name="previous" class="previous btn btn-default" value="sebelumnya" />
-                            <input type="button" name="next" class="next btn btn-info" value="selanjutnya" />
-                        </fieldset>
-                        <fieldset>
-                            <h6 class="mt-3">Deskripsi</h6>
-                            <div class="form-group">
-                                <label for="deskripsi">Deskripsi kamar</label>
-                                <textarea name="deskripsi" class="deskripsi" id="deskripsi" style="height: 200px;"></textarea>
-                            </div>
-                            <input type="button" name="previous" class="previous btn btn-default" value="sebelumnya" />
-                            <input type="button" name="next" class="next btn btn-info" value="selanjutnya" />
-                        </fieldset>
-                        <fieldset>
-                            <h6 class="mt-3">Gambar</h6>
-                            <div class="row">
-                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="gambar_satu">Gambar 1</label>
-                                        <input class="form-control" type="file" name="gambar_satu" id="gambar_satu" accept="img/*" require>
-                                        <input class="form-control" type="text" name="gambar_satu_hidden" id="gambar_satu_hidden" hidden>
-                                        <img class="gambar_satu_pre" id="gambar_satu_pre" src=""></img>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="gambar_dua">Gambar 2</label>
-                                        <input class="form-control" type="file" name="gambar_dua" id="gambar_dua" accept="img/*">
-                                        <input class="form-control" type="text" name="gambar_dua_hidden" id="gambar_dua_hidden" hidden>
-                                        <img class="gambar_dua_pre" id="gambar_dua_pre"></img>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="gambar_tiga">Gambar 3</label>
-                                        <input class="form-control" type="file" name="gambar_tiga" id="gambar_tiga" accept="img/*">
-                                        <input class="form-control" type="text" name="gambar_tiga_hidden" id="gambar_tiga_hidden" hidden>
-                                        <img class="gambar_tiga_pre" id="gambar_tiga_pre"></img>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="gambar_empat">Gambar 4</label>
-                                        <input class="form-control" type="file" name="gambar_empat" id="gambar_empat" accept="img/*">
-                                        <input class="form-control" type="text" name="gambar_empat_hidden" id="gambar_empat_hidden" hidden>
-                                        <img class="gambar_empat_pre" id="gambar_empat_pre"></img>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="gambar_lima">Gambar 5</label>
-                                        <input class="form-control" type="file" name="gambar_lima" id="gambar_lima" accept="img/*">
-                                        <input class="form-control" type="text" name="gambar_lima_hidden" id="gambar_lima_hidden" hidden>
-                                        <img class="gambar_lima_pre" id="gambar_lima_pre"></img>
+                    <form id="tambah_kamar" action="<?= base_url('juragan/kamar/save') ?>" method="post" enctype="multipart/form-data" class="needs-validation" novalidate="">
+                        <div class="row">
+                            <div class="col-md-8 col-sm-12">
+                                <div class="form-group">
+                                    <label for="nama">Nama kamar</label>
+                                    <input type="text" name="status" value="validasi" hidden>
+                                    <input type="text" class="form-control" id="nama" name="nama" placeholder="Contoh: Kamar 1A Lantai 2 Kost Mawar" required>
+                                    <div class="invalid-feedback">
+                                        Nama harus diisi!
                                     </div>
                                 </div>
                             </div>
-                            <input type="button" name="previous" class="previous btn btn-default" value="sebelumnya" />
-                            <input type="submit" name="submit" class="next btn btn-info" value="simpan" />
-                        </fieldset>
+                            <div class="col-md-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="tipekamar">Tipe Kamar</label>
+                                    <select name="tipe" id="tipe" class="form-control" required>
+                                        <option value="">Pilih tipe kamar</option>
+                                        <option value="A">Tipe A Maks. 1 orang/ kamar</option>
+                                        <option value="B">Tipe B Maks. 2 orang/ kamar</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Tipe kamar harus dipilih!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="harga">Jumlah kamar</label>
+                                    <input class="form-control" type="number" name="jumlah_kamar" id="jumlah_kamar" required>
+                                    <div class="invalid-feedback">
+                                        Jumlah kamar harus diisi!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="harga">Harga</label>
+                                    <input class="form-control" min="100000" max="20000000" type="number" name="harga" id="harga" required>
+                                    <div class="invalid-feedback">
+                                        Harga harus diisi! minimal Rp 100.000
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="diskon">Diskon</label>
+                                    <input class="form-control" type="number" name="diskon" id="diskon" required>
+                                    <div class="invalid-feedback">
+                                        Diskon harus diisi!
+                                    </div>
+                                    <span class="text-warning">Masukan diskon dalam bentuk persen bukan nominal potongan</span>
+
+                                </div>
+                            </div>
+                        </div>
+                        <p class="font-weight-bold">FASILITAS:</p>
+                        <div class="row mb-2">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Fasilitas Umum</label>
+                                    <select class="form-control select2" multiple name="f_umum[]" id="fasilitas" style="width: 100%">
+                                        <?php foreach ($f_umum as $f_umum) : ?>
+                                            <option value="<?= $f_umum['uid_fasilitas'] ?>"><?= $f_umum['nama'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Fasilitas Kamar</label>
+                                    <select class="form-control select2" multiple name="f_kamar[]" id="fasilitas" style="width: 100%">
+                                        <?php foreach ($f_kamar as $f_kamar) : ?>
+                                            <option value="<?= $f_kamar['uid_fasilitas'] ?>"><?= $f_kamar['nama'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Fasilitas Kamar harus dipilih!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Fasilitas Kamar Mandi</label>
+                                    <select class="form-control select2" multiple name="f_kamar_mandi[]" id="fasilitas" style="width: 100%">
+                                        <?php foreach ($f_kamar_mandi as $f_kamar_mandi) : ?>
+                                            <option value="<?= $f_kamar_mandi['uid_fasilitas'] ?>"><?= $f_kamar_mandi['nama'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Fasilitas Kamar Mandi harus dipilih!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Fasilitas Parkiran</label>
+                                    <select class="form-control select2" multiple name="f_parkiran[]" id="fasilitas" style="width: 100%">
+                                        <?php foreach ($f_parkiran as $f_parkiran) : ?>
+                                            <option value="<?= $f_parkiran['uid_fasilitas'] ?>"><?= $f_parkiran['nama'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="font-weight-bold">DURASI DAN KATEGORI KAMAR:</p>
+                        <div class="row mb-2">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Durasi</label>
+                                    <select class="form-control select2" multiple name="durasi[]" id="durasi" style="width: 100%;" required>
+                                        <?php foreach ($durasi as $durasi) : ?>
+                                            <option value="<?= $durasi['uid_durasi'] ?>"><?= $durasi['durasi'] ?> Bulan</option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Durasi harus dipilih!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Kategori kamar</label>
+                                    <select class="form-control" name="kategori" id="kategori" style="width:100%;" required>
+                                        <option value="">pilih kategori</option>
+                                        <?php foreach ($kategori as $kategori) : ?>
+                                            <option value="<?= $kategori['uid_kategori'] ?>"><?= $kategori['nama_kategori'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Kategori harus dipilih!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="luaskamar">Luas kamar</label>
+                            <input type="text" class="form-control luaskamar" name="luaskamar" id="luaskamar" placeholder="3x2 / 3x3 ..." required>
+                            <div class="invalid-feedback">
+                                Luas kamar harus diisi!
+                            </div>
+                        </div>
+                        <p class="font-weight-bold">LOKASI:</p>
+                        <div class="form-group">
+                            <label for="Alamat">Alamat</label>
+                            <input type="text" class="form-control alamat" name="alamat" id="alamat" style="height: 80px;" placeholder="Masukan alamat lengkap" required>
+                            <div class="invalid-feedback">
+                                Alamat harus diisi!
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Provinsi">Provinsi</label>
+                            <select class="form-control provinsi select2" name="provinsi" id="provinsi" style="width: 100%;" required>
+                            </select>
+                            <div class="invalid-feedback">
+                                Provinsi harus dipilih!
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Kota">Kota</label>
+                            <select class="form-control kota select2" name="kota" id="kota" style="width: 100%;" required>
+                                <option value="">Pilih Kota/Kabupaten</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Kota/kabupaten harus dipilih!
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Kota">Lokasi Maps embed</label><br>
+                            <small>Tutorial mengambil embed maps? <a href="<?= base_url('page/tutorialmaps') ?>">Cara Embed</a></small>
+                            <input type="text" class="form-control maps" id="maps" name="maps" placeholder="Masukan iframe dari embed maps jika ingin menggunakan maps pada lokasi kost anda">
+                            <input type="text" hidden name="hidden_maps" id="hidden_maps">
+                            <small>Maps lokasi kost anda:</small>
+                            <div class="maps-frame" style="height: 250px; width:250px">
+                            </div>
+                        </div>
+                        <p class="font-weight-bold" for="deskripsi">Deskripsi kamar</p>
+                        <div class="form-group">
+                            <textarea name="deskripsi" class="deskripsi" id="deskripsi" style="height: 200px;"></textarea>
+                            <div class="invalid-feedback">
+                                Diskripsi harus diisi!
+                            </div>
+                        </div>
+                        <p class="font-weight-bold">GAMBAR</p>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="gambar_satu">Gambar 1</label>
+                                    <input class="form-control" type="file" name="gambar_satu" id="gambar_satu" accept="img/*" required>
+                                    <div class="invalid-feedback">
+                                        Wajib upload 1 gambar!
+                                    </div>
+                                    <input class="form-control" type="text" name="gambar_satu_hidden" id="gambar_satu_hidden" hidden>
+                                    <img class="gambar_satu_pre" id="gambar_satu_pre" src=""></img>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="gambar_dua">Gambar 2</label>
+                                    <input class="form-control" type="file" name="gambar_dua" id="gambar_dua" accept="img/*">
+                                    <input class="form-control" type="text" name="gambar_dua_hidden" id="gambar_dua_hidden" hidden>
+                                    <img class="gambar_dua_pre" id="gambar_dua_pre"></img>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="gambar_tiga">Gambar 3</label>
+                                    <input class="form-control" type="file" name="gambar_tiga" id="gambar_tiga" accept="img/*">
+                                    <input class="form-control" type="text" name="gambar_tiga_hidden" id="gambar_tiga_hidden" hidden>
+                                    <img class="gambar_tiga_pre" id="gambar_tiga_pre"></img>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="gambar_empat">Gambar 4</label>
+                                    <input class="form-control" type="file" name="gambar_empat" id="gambar_empat" accept="img/*">
+                                    <input class="form-control" type="text" name="gambar_empat_hidden" id="gambar_empat_hidden" hidden>
+                                    <img class="gambar_empat_pre" id="gambar_empat_pre"></img>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="gambar_lima">Gambar 5</label>
+                                    <input class="form-control" type="file" name="gambar_lima" id="gambar_lima" accept="img/*">
+                                    <input class="form-control" type="text" name="gambar_lima_hidden" id="gambar_lima_hidden" hidden>
+                                    <img class="gambar_lima_pre" id="gambar_lima_pre"></img>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" name="submit" class="next btn btn-info" value="simpan" />
                     </form>
                 </div>
             </div>
@@ -177,32 +256,8 @@
             focus: true,
         });
 
-        var current = 1,
-            current_step, next_step, steps;
-        steps = $("fieldset").length;
-        $(".next").click(function() {
-            current_step = $(this).parent();
-            next_step = $(this).parent().next();
-            next_step.show();
-            current_step.hide();
-            setProgressBar(++current);
-        });
-        $(".previous").click(function() {
-            current_step = $(this).parent();
-            next_step = $(this).parent().prev();
-            next_step.show();
-            current_step.hide();
-            setProgressBar(--current);
-        });
-        setProgressBar(current);
-        // Change progress bar action
-        function setProgressBar(curStep) {
-            var percent = parseFloat(100 / steps) * curStep;
-            percent = percent.toFixed();
-            $(".progress-bar")
-                .css("width", percent + "%")
-                .html(percent + "%");
-        }
+
+
         var app = {
             show: function() {
                 $.ajax({

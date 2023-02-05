@@ -60,7 +60,7 @@
               <h4>Total keuangan</h4>
             </div>
             <div class="card-body">
-              <?= rupiah($saldo['available']['saldo_masuk'] + $saldo['withdraw']['saldo_withdraw'] + $saldo['profit']['jumlah_profit']) ?>
+              <?= rupiah($saldo['available']['saldo_masuk'] - ($saldo['withdraw']['saldo_withdraw']) + $saldo['profit']['jumlah_profit']) ?>
             </div>
           </div>
         </div>
@@ -109,29 +109,27 @@
               <table class="table table-striped">
                 <tr>
                   <th>Invoice ID</th>
-                  <th>Penghuni/Customer</th>
+                  <th>Penghuni</th>
+                  <th>Jenis</th>
                   <th>Status</th>
                   <th>Waktu transaksi</th>
                   <th>Tenggat transaksi</th>
-                  <th>Action</th>
                 </tr>
                 <?php
                 $i = 1;
                 foreach ($transaksi as $transaksi) :
                 ?>
                   <tr>
-                    <td><a href="<?= base_url('juragan/transaksi/detail/') . $transaksi['uid_transaksi'] ?>"><?= $transaksi['uid_transaksi'] ?></a></td>
+                    <td><a href="<?= base_url('admin/transaksi/data/detail/') . $transaksi['uid_transaksi'] ?>"><?= $transaksi['uid_transaksi'] ?></a></td>
                     <td class="font-weight-600"><?= $transaksi['fnama'] . ' ' . $transaksi['lnama'] ?></td>
+                    <td class="font-weight-600"><?= $transaksi['jenis'] ?></td>
                     <td>
                       <div class="badge <?= ($transaksi['status_pembayaran'] === 'SETTLEMENT') ? 'badge-success' : 'badge-warning' ?>">
-                        <?= $transaksi['status_pembayaran'] ?>
+                        <?= ($transaksi['status_pembayaran'] === 'SETTLEMENT') ? 'APPROVE' : 'PENDING' ?>
                       </div>
                     </td>
                     <td><?= $transaksi['waktu_transaksi'] ?></td>
                     <td><?= $transaksi['tenggat_pembayaran'] ?></td>
-                    <td>
-                      <a href="<?= base_url('admin/transaksi/data/detail/') . $transaksi['uid_transaksi'] ?>" class="btn btn-primary">Detail</a>
-                    </td>
                   </tr>
                 <?php endforeach; ?>
               </table>

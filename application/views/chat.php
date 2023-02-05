@@ -7,8 +7,17 @@
         </div>
         <div class="card-body">
             <div class="align-items-center">
-                <label class="sr-only" for="inlineFormInput">Name</label>
-                <input type="text" class="form-control mb-4" id="search" class="search" name="search" placeholder="Masukan nama penghuni">
+                <div class="form-group">
+                    <input type="text" class="form-control mb-1" id="search" class="search" name="search" placeholder="Masukan nama penghuni" style="width: 30%;">
+                    <?php if ($user['otoritas'] == "juragan") { ?>
+                        <label class="custom-switch">
+                            <input type="checkbox" name="custom-switch-checkbox" class="custom-switch-input">
+                            <span class="custom-switch-indicator"></span>
+                            <span class="custom-switch-description">Penghuni</span>
+                        </label>
+                    <?php } else {
+                    } ?>
+                </div>
             </div>
             <ul class="list-unstyled list-unstyled-border chat" id="chat">
 
@@ -41,18 +50,31 @@
 <?php $this->load->view('dist/_partials/footer.php'); ?>
 <script>
     $('document').ready(function() {
-
         load();
-
+        $(".custom-switch-input").change(function() {
+            if ($(this).prop("checked") == true) {
+                $.ajax({
+                    url: "<?= base_url($user['otoritas'] . '/chat/getPengirim') ?>",
+                    type: "POST",
+                    data: {
+                        penghuni: "on"
+                    },
+                    success: function(data) {
+                        chatContent.innerHTML = data;
+                    }
+                })
+            } else {
+                load();
+            }
+        });
         chatContent = document.querySelector('.chat');
         $('#search').on('input', function() {
-
             var search = $(this).val();
             if (search === "") {
                 load();
             } else {
                 $.ajax({
-                    url: "<?= base_url('juragan/chat/getPengirim') ?>",
+                    url: "<?= base_url($user['otoritas'] . '/chat/getPengirim') ?>",
                     type: "POST",
                     data: {
                         search: search
@@ -67,7 +89,7 @@
         $('.btn-cari').click(function() {
             var select = document.querySelector('.penghuni');
             $.ajax({
-                url: "<?= base_url('juragan/chat/getPenghuni') ?>",
+                url: "<?= base_url($user['otoritas'] . '/chat/getPenghuni') ?>",
                 type: "GET",
                 dataType: "JSON",
                 success: function(response) {
@@ -84,14 +106,14 @@
 
         $('.kirimpesan').click(function() {
             var uid_penghuni = $('#penghuni').find(":selected").val();
-            url = "<?= base_url('juragan/chat/area/') ?>" + uid_penghuni;
+            url = "<?= base_url($user['otoritas'] . '/chat/area/') ?>" + uid_penghuni;
             window.location.href = url;
         })
     })
 
     function load() {
         $.ajax({
-            url: "<?= base_url('juragan/chat/getPengirim') ?>",
+            url: "<?= base_url($user['otoritas'] . '/chat/getPengirim') ?>",
             type: "GET",
             success: function(data) {
                 chatContent.innerHTML = data;

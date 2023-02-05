@@ -14,14 +14,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/fontawesome/css/all.min.css">
 
   <!-- CSS Libraries -->
+  <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/bootstrap-daterangepicker/daterangepicker.css">
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/jqvmap/dist/jqvmap.min.css">
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/summernote/summernote-bs4.css">
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/owlcarousel2/dist/assets/owl.carousel.min.css">
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/owlcarousel2/dist/assets/owl.theme.default.min.css">
+  <!-- datatable -->
   <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/DataTables/datatables.min.css">
-  <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/DataTables/DataTables-1.11.5/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/DataTables/Select-1.3.4/css/select.bootstrap4.min.css">
 
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <!-- Fontawesome -->
   <link rel="stylesheet" href="<?= base_url() ?>assets/plugins/fontawesome-free-6.1.1-web/css/all.css">
   <?php
@@ -59,7 +60,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/owlcarousel2/dist/assets/owl.theme.default.min.css">
   <?php
   } elseif ($this->uri->segment(4) === "detail" || $this->uri->segment(4) === "add" || $this->uri->segment(3) === "administrator" || $this->uri->segment(3) === "detail" || $this->uri->segment(3) === 'add') { ?>
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/bootstrap-daterangepicker/daterangepicker.css">
+
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/select2/dist/css/select2.min.css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/modules/jquery-selectric/selectric.css">

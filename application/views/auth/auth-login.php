@@ -50,8 +50,8 @@
                     <div class="d-block">
                       <label for="password" class="control-label">Password</label>
                       <div class="float-right">
-                        <a href="<?php echo base_url(); ?>dist/auth_forgot_password" class="text-small">
-                          Forgot Password?
+                        <a href="<?php echo base_url(); ?>auth/forgetpassword" class="text-small">
+                          Lupa password?
                         </a>
                       </div>
                     </div>
